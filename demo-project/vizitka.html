@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Визитка — Александр Керимов</title>
+<style>
+    body {
+        margin:0;
+        padding:0;
+        background:#0a0a0a;
+        color:#fff;
+        font-family:system-ui, sans-serif;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;
+        text-align:center;
+    }
+    .container {
+        max-width:90vw;
+        padding:2rem;
+    }
+    h1 {
+        font-size:4vw;
+        margin:0;
+        position:relative;
+        background: linear-gradient(45deg,#ff6ec4,#7873f5,#4ade80);
+        -webkit-background-clip:text;
+        color:transparent;
+        animation: glow 2s infinite alternate;
+    }
+    @keyframes glow {
+        from {text-shadow:0 0 10px rgba(255,110,196,0.7), 0 0 20px rgba(120,115,245,0.6);} 
+        to {text-shadow:0 0 20px rgba(255,110,196,1), 0 0 40px rgba(120,115,245,0.8);} 
+    }
+    p {
+        font-size:2vw;
+        margin:0.5rem 0;
+    }
+    .social {
+        margin-top:1.5rem;
+        display:flex;
+        justify-content:center;
+        gap:1.5rem;
+    }
+    .social a {
+        display:inline-block;
+        width:3rem;
+        height:3rem;
+        fill:#fff;
+        transition:transform .3s, fill .3s;
+    }
+    .social a:hover {
+        transform:scale(1.2);
+        fill:#4ade80;
+    }
+    .btn {
+        display:inline-block;
+        margin-top:2rem;
+        padding:0.8rem 2rem;
+        font-size:1.2rem;
+        color:#0a0a0a;
+        background:#4ade80;
+        border:none;
+        border-radius:50px;
+        cursor:pointer;
+        position:relative;
+        overflow:hidden;
+        transition:background .3s;
+    }
+    .btn:after {
+        content:'';
+        position:absolute;
+        width:100%;
+        height:100%;
+        top:0; left:-100%;
+        background:rgba(255,255,255,0.3);
+        transform:skewX(-20deg);
+        transition:left .5s;
+    }
+    .btn:hover:after {
+        left:100%;
+    }
+    @media (max-width:600px) {
+        h1 {font-size:8vw;}
+        p {font-size:4vw;}
+        .social a {width:4rem;height:4rem;}
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Александр Керимов</h1>
+    <p>Бизнес-консультант</p>
+    <div class="social">
+        <!-- telegram svg -->
+        <a href="https://t.me/adisonSLV" target="_blank" aria-label="Telegram">
+            <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="120" cy="120" r="120" fill="#0088cc"/>
+                <path d="M100 160l3-44 64-36" stroke="#fff" stroke-width="20" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M100 160l-15-6 35-22" stroke="#fff" stroke-width="20" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+        <!-- email or other svg placeholder if needed -->
+    </div>
+    <button class="btn" onclick="location.href='https://t.me/adisonSLV'">Написать мне</button>
+</div>
+</body>
+</html>

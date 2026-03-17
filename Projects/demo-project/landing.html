@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Генератор прибыли</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        text-align: center;
+        padding: 20px;
+    }
+    h1 {
+        font-size: 2.5em;
+        background: linear-gradient(90deg, #ff007a, #ffb300);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5em;
+    }
+    p.description {
+        font-size: 1.2em;
+        margin-bottom: 1.5em;
+    }
+    .cards {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 2em;
+    }
+    .card {
+        background: #1f1f1f;
+        border-radius: 10px;
+        padding: 20px;
+        max-width: 250px;
+        flex: 1 1 200px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        transition: transform 0.3s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .card svg {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 10px;
+        fill: #ffb300;
+    }
+    .cta-button {
+        display: inline-block;
+        background: #ff007a;
+        color: #fff;
+        padding: 15px 30px;
+        font-size: 1.2em;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        animation: pulse 2s infinite;
+        text-decoration: none;
+    }
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    .contact {
+        margin-top: 1em;
+        font-size: 1em;
+    }
+    @media (max-width: 600px) {
+        h1 { font-size: 2em; }
+        .cards { flex-direction: column; }
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1>Генератор прибыли</h1>
+        <p class="description">Увеличивает прибыль от 30 до 90%</p>
+        <div class="cards">
+            <div class="card">
+                <svg viewBox="0 0 64 64"><path d="M32 4l8 28h28l-22 16 8 28-22-16-22 16 8-28-22-16h28z"/></svg>
+                <h3>Оптимизирует бизнес-процессы</h3>
+            </div>
+            <div class="card">
+                <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="30"/><path d="M32 16v32M16 32h32" stroke="#0a0a0a" stroke-width="4"/></svg>
+                <h3>Даёт эффективные решения</h3>
+            </div>
+            <div class="card">
+                <svg viewBox="0 0 64 64"><path d="M32 6a26 26 0 1 0 26 26A26 26 0 0 0 32 6zm0 44a18 18 0 1 1 18-18 18 18 0 0 1-18 18z"/></svg>
+                <h3>Находит скрытую прибыль</h3>
+            </div>
+        </div>
+        <a href="#" class="cta-button">Узнать больше</a>
+        <div class="contact">
+            <a href="tel:+79494508274" style="color:#ffb300; text-decoration:none;">+7 949 450 8274</a>
+        </div>
+        <p>Подходит для бизнеса сферы услуг и продаж, не требует дополнительных затрат.</p>
+    </div>
+</body>
+</html>
