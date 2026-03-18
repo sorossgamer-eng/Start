@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM — Агент по недвижимости</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue: #2563eb;
+  --blue-light: #eff6ff;
+  --blue-dark: #1d4ed8;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --bg: #f8fafc;
+  --white: #ffffff;
+  --green: #16a34a;
+  --orange: #ea580c;
+  --purple: #7c3aed;
+  --red: #dc2626;
+  --sidebar-w: 220px;
+}
+
+body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* LAYOUT */
+.app { display: flex; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  transition: transform 0.25s;
+}
+
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo h2 { font-size: 1.05em; color: var(--blue); }
+.sidebar-logo p { font-size: 0.75em; color: var(--text-muted); margin-top: 2px; }
+
+.sidebar-nav { padding: 12px 10px; flex: 1; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9em;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+  margin-bottom: 2px;
+  user-select: none;
+}
+
+.nav-item:hover { background: var(--bg); color: var(--text); }
+.nav-item.active { background: var(--blue-light); color: var(--blue); font-weight: bold; }
+.nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* MAIN */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.topbar h1 { font-size: 1.15em; }
+
+.btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.9em;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-primary:hover { background: var(--blue-dark); }
+.btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--bg); }
+.btn-sm { padding: 5px 12px; font-size: 0.8em; }
+.btn-danger { background: #fee2e2; color: var(--red); border: none; }
+.btn-danger:hover { background: #fecaca; }
+
+.content { padding: 24px; flex: 1; }
+
+/* PAGE */
+.page { display: none; }
+.page.active { display: block; }
+
+/* DASHBOARD */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.stat-card .stat-label { font-size: 0.8em; color: var(--text-muted); margin-bottom: 6px; }
+.stat-card .stat-value { font-size: 2em; font-weight: bold; }
+.stat-card .stat-sub { font-size: 0.78em; color: var(--text-muted); margin-top: 4px; }
+
+.stat-blue .stat-value { color: var(--blue); }
+.stat-green .stat-value { color: var(--green); }
+.stat-orange .stat-value { color: var(--orange); }
+.stat-purple .stat-value { color: var(--purple); }
+
+.section-title { font-size: 1em; font-weight: bold; margin-bottom: 14px; color: var(--text); }
+
+.recent-table {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+table { width: 100%; border-collapse: collapse; font-size: 0.875em; }
+th { text-align: left; padding: 11px 16px; font-size: 0.78em; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--bg); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+td { padding: 11px 16px; border-bottom: 1px solid var(--border); }
+tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--bg); cursor: pointer; }
+
+/* BADGE */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75em;
+  font-weight: bold;
+}
+.badge-new { background: #e0f2fe; color: #0369a1; }
+.badge-inwork { background: #fef9c3; color: #854d0e; }
+.badge-paid { background: #dcfce7; color: var(--green); }
+.badge-done { background: #f1f5f9; color: var(--text-muted); }
+
+/* CLIENTS */
+.toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 180px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.875em;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-input:focus { border-color: var(--blue); }
+
+select.filter-select {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.875em;
+  outline: none;
+  background: var(--white);
+  color: var(--text);
+  cursor: pointer;
+}
+select.filter-select:focus { border-color: var(--blue); }
+
+/* CLIENT CARD */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--blue);
+  font-size: 0.875em;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+.back-btn:hover { text-decoration: underline; }
+
+.client-header {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.client-avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--blue-light);
+  color: var(--blue);
+  font-size: 1.4em;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.client-info { flex: 1; }
+.client-info h2 { font-size: 1.15em; margin-bottom: 4px; }
+.client-info p { font-size: 0.82em; color: var(--text-muted); }
+
+.client-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.status-select {
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.85em;
+  cursor: pointer;
+  outline: none;
+  background: var(--white);
+}
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.info-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+
+.info-card h3 { font-size: 0.85em; color: var(--text-muted); margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+
+.info-row { display: flex; flex-direction: column; margin-bottom: 10px; }
+.info-row:last-child { margin-bottom: 0; }
+.info-row label { font-size: 0.75em; color: var(--text-muted); margin-bottom: 2px; }
+.info-row span { font-size: 0.9em; font-weight: 500; }
+
+.notes-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-top: 16px;
+}
+
+.notes-card h3 { font-size: 0.85em; color: var(--text-muted); margin-bottom: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+
+.note-input-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.note-input {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.875em;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.note-input:focus { border-color: var(--blue); }
+
+.note-item {
+  border-left: 3px solid var(--blue);
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  background: var(--bg);
+  border-radius: 0 6px 6px 0;
+}
+.note-item .note-text { font-size: 0.875em; margin-bottom: 3px; }
+.note-item .note-date { font-size: 0.75em; color: var(--text-muted); }
+.no-notes { font-size: 0.85em; color: var(--text-muted); font-style: italic; }
+
+/* KANBAN */
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.kanban-col {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.kanban-col-header {
+  padding: 12px 14px;
+  font-size: 0.82em;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.kanban-col-header .col-count {
+  background: var(--bg);
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-size: 0.78em;
+  color: var(--text-muted);
+}
+
+.col-new .kanban-col-header { background: #e0f2fe; color: #0369a1; }
+.col-inwork .kanban-col-header { background: #fef9c3; color: #854d0e; }
+.col-paid .kanban-col-header { background: #dcfce7; color: var(--green); }
+.col-done .kanban-col-header { background: #f1f5f9; color: var(--text-muted); }
+
+.kanban-cards { padding: 10px; min-height: 60px; }
+
+.kanban-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 11px 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s;
+  font-size: 0.85em;
+}
+.kanban-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.08); transform: translateY(-1px); }
+.kanban-card:last-child { margin-bottom: 0; }
+.kanban-card .kc-name { font-weight: bold; margin-bottom: 3px; }
+.kanban-card .kc-phone { color: var(--text-muted); font-size: 0.82em; }
+.kanban-card .kc-source { font-size: 0.75em; color: var(--blue); margin-top: 4px; }
+
+.empty-col { text-align: center; font-size: 0.8em; color: var(--text-muted); padding: 16px 0; font-style: italic; }
+
+/* MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 28px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  animation: fadeUp 0.2s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal h2 { font-size: 1.1em; margin-bottom: 20px; }
+
+.form-row { margin-bottom: 14px; }
+.form-row label { display: block; font-size: 0.8em; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
+.form-row input,
+.form-row select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9em;
+  outline: none;
+  transition: border-color 0.2s;
+  background: var(--white);
+  color: var(--text);
+}
+.form-row input:focus,
+.form-row select:focus { border-color: var(--blue); }
+
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+/* HAMBURGER */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--text);
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 99;
+}
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--text-muted);
+}
+.empty-state p { margin-bottom: 14px; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .kanban { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 700px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .sidebar-overlay.open { display: block; }
+  .main { margin-left: 0; }
+  .hamburger { display: block; }
+  .two-col { grid-template-columns: 1fr; }
+  .kanban { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 420px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .content { padding: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <h2>🏠 CRM Агента</h2>
+      <p>Недвижимость</p>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="navigate('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Дашборд
+      </div>
+      <div class="nav-item" onclick="navigate('clients')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Клиенты
+      </div>
+      <div class="nav-item" onclick="navigate('deals')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Сделки
+      </div>
+    </nav>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="hamburger" onclick="toggleSidebar()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h1 id="pageTitle">Дашборд</h1>
+      </div>
+      <button class="btn btn-primary" onclick="openModal()">+ Добавить клиента</button>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid" id="statsGrid"></div>
+        <p class="section-title">Последние клиенты</p>
+        <div class="recent-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Имя</th>
+                <th>Телефон</th>
+                <th>Источник</th>
+                <th>Статус</th>
+                <th>Дата</th>
+              </tr>
+            </thead>
+            <tbody id="recentBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CLIENTS -->
+      <div class="page" id="page-clients">
+        <div class="toolbar">
+          <input type="text" class="search-input" id="searchInput" placeholder="Поиск по имени..." oninput="renderClients()">
+          <select class="filter-select" id="filterStatus" onchange="renderClients()">
+            <option value="">Все статусы</option>
+            <option value="new">Новый</option>
+            <option value="inwork">В работе</option>
+            <option value="paid">Оплачен</option>
+            <option value="done">Завершён</option>
+          </select>
+          <select class="filter-select" id="filterSource" onchange="renderClients()">
+            <option value="">Все источники</option>
+            <option value="Рекомендация">Рекомендация</option>
+            <option value="Авито">Авито</option>
+            <option value="Instagram">Instagram</option>
+            <option value="Сайт">Сайт</option>
+            <option value="Другое">Другое</option>
+          </select>
+        </div>
+        <div class="recent-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Имя</th>
+                <th>Телефон</th>
+                <th>Email</th>
+                <th>Источник</th>
+                <th>Статус</th>
+                <th>Дата</th>
+              </tr>
+            </thead>
+            <tbody id="clientsBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="clientsEmpty" style="display:none">
+          <p>Клиентов пока нет</p>
+          <button class="btn btn-primary" onclick="openModal()">+ Добавить первого клиента</button>
+        </div>
+      </div>
+
+      <!-- CLIENT CARD -->
+      <div class="page" id="page-client-card">
+        <div class="back-btn" onclick="navigate('clients')">← Назад к клиентам</div>
+        <div class="client-header">
+          <div style="display:flex;align-items:center;gap:14px;flex:1">
+            <div class="client-avatar" id="cardAvatar"></div>
+            <div class="client-info">
+              <h2 id="cardName"></h2>
+              <p id="cardMeta"></p>
+            </div>
+          </div>
+          <div class="client-actions">
+            <select class="status-select" id="cardStatus" onchange="updateClientStatus()"></select>
+            <button class="btn btn-sm btn-danger" onclick="deleteClient()">Удалить</button>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="info-card">
+            <h3>Контакты</h3>
+            <div class="info-row"><label>Телефон</label><span id="cardPhone"></span></div>
+            <div class="info-row"><label>Email</label><span id="cardEmail"></span></div>
+            <div class="info-row"><label>Источник</label><span id="cardSource"></span></div>
+            <div class="info-row"><label>Добавлен</label><span id="cardDate"></span></div>
+          </div>
+          <div class="info-card">
+            <h3>Сделка</h3>
+            <div class="info-row"><label>Статус</label><span id="cardStatusText"></span></div>
+            <div class="info-row">
+              <label>Сумма сделки (₽)</label>
+              <input type="number" id="cardAmount" placeholder="0" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9em;outline:none;margin-top:2px" onchange="updateClientAmount()">
+            </div>
+          </div>
+        </div>
+        <div class="notes-card">
+          <h3>Заметки</h3>
+          <div class="note-input-row">
+            <input type="text" class="note-input" id="noteInput" placeholder="Добавить заметку..." onkeydown="if(event.key==='Enter')addNote()">
+            <button class="btn btn-primary btn-sm" onclick="addNote()">Добавить</button>
+          </div>
+          <div id="notesList"></div>
+        </div>
+      </div>
+
+      <!-- DEALS KANBAN -->
+      <div class="page" id="page-deals">
+        <div class="kanban" id="kanbanBoard"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>Новый клиент</h2>
+    <div class="form-row">
+      <label>Имя *</label>
+      <input type="text" id="f-name" placeholder="Иванов Иван">
+    </div>
+    <div class="form-row">
+      <label>Телефон *</label>
+      <input type="tel" id="f-phone" placeholder="+7 999 000 00 00">
+    </div>
+    <div class="form-row">
+      <label>Email</label>
+      <input type="email" id="f-email" placeholder="email@example.com">
+    </div>
+    <div class="form-row">
+      <label>Источник</label>
+      <select id="f-source">
+        <option value="Рекомендация">Рекомендация</option>
+        <option value="Авито">Авито</option>
+        <option value="Instagram">Instagram</option>
+        <option value="Сайт">Сайт</option>
+        <option value="Другое">Другое</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Сумма сделки (₽)</label>
+      <input type="number" id="f-amount" placeholder="0">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="saveClient()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────
+const STORE_KEY = 'crm_clients';
+
+function loadClients() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; }
+  catch { return []; }
+}
+
+function saveClients(data) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(data));
+}
+
+let clients = loadClients();
+let currentClientId = null;
+
+const STATUS_LABELS = {
+  new: 'Новый',
+  inwork: 'В работе',
+  paid: 'Оплачен',
+  done: 'Завершён'
+};
+
+function statusBadge(s) {
+  return `<span class="badge badge-${s}">${STATUS_LABELS[s] || s}</span>`;
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('ru-RU');
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+
+// ── NAVIGATION ────────────────────────────────────────
+let currentPage = 'dashboard';
+
+function navigate(page, id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  currentPage = page;
+  document.getElementById('page-' + (page === 'client-card' ? 'client-card' : page)).classList.add('active');
+
+  const pageNames = { dashboard: 'Дашборд', clients: 'Клиенты', deals: 'Сделки', 'client-card': 'Карточка клиента' };
+  document.getElementById('pageTitle').textContent = pageNames[page] || '';
+
+  const navMap = { dashboard: 0, clients: 1, deals: 2 };
+  const navItems = document.querySelectorAll('.nav-item');
+  if (navMap[page] !== undefined) navItems[navMap[page]].classList.add('active');
+  if (page === 'client-card') navItems[1].classList.add('active');
+
+  if (page === 'dashboard') renderDashboard();
+  if (page === 'clients') renderClients();
+  if (page === 'client-card' && id) renderClientCard(id);
+  if (page === 'deals') renderKanban();
+
+  closeSidebar();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────
+function renderDashboard() {
+  const active = clients.filter(c => c.status === 'inwork' || c.status === 'paid');
+  const totalSum = clients.reduce((s, c) => s + (parseFloat(c.amount) || 0), 0);
+  const inWorkSum = active.reduce((s, c) => s + (parseFloat(c.amount) || 0), 0);
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card stat-blue">
+      <div class="stat-label">Всего клиентов</div>
+      <div class="stat-value">${clients.length}</div>
+    </div>
+    <div class="stat-card stat-orange">
+      <div class="stat-label">Активных сделок</div>
+      <div class="stat-value">${active.length}</div>
+    </div>
+    <div class="stat-card stat-green">
+      <div class="stat-label">Сумма в работе</div>
+      <div class="stat-value">${fmtMoney(inWorkSum)}</div>
+      <div class="stat-sub">₽</div>
+    </div>
+    <div class="stat-card stat-purple">
+      <div class="stat-label">Завершённых</div>
+      <div class="stat-value">${clients.filter(c => c.status === 'done').length}</div>
+    </div>
+  `;
+
+  const recent = [...clients].sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded)).slice(0, 8);
+  const tbody = document.getElementById('recentBody');
+  if (!recent.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">Клиентов пока нет</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = recent.map(c => `
+    <tr onclick="navigate('client-card','${c.id}')">
+      <td><strong>${c.name}</strong></td>
+      <td>${c.phone}</td>
+      <td>${c.source}</td>
+      <td>${statusBadge(c.status)}</td>
+      <td>${fmtDate(c.dateAdded)}</td>
+    </tr>
+  `).join('');
+}
+
+function fmtMoney(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + ' млн';
+  if (n >= 1000) return (n / 1000).toFixed(0) + ' тыс';
+  return n.toString();
+}
+
+// ── CLIENTS LIST ──────────────────────────────────────
+function renderClients() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const st = document.getElementById('filterStatus').value;
+  const src = document.getElementById('filterSource').value;
+
+  let list = clients.filter(c => {
+    const matchQ = !q || c.name.toLowerCase().includes(q) || c.phone.includes(q);
+    const matchSt = !st || c.status === st;
+    const matchSrc = !src || c.source === src;
+    return matchQ && matchSt && matchSrc;
+  });
+
+  list.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+
+  const tbody = document.getElementById('clientsBody');
+  const empty = document.getElementById('clientsEmpty');
+
+  if (!clients.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">Ничего не найдено</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(c => `
+    <tr onclick="navigate('client-card','${c.id}')">
+      <td><strong>${c.name}</strong></td>
+      <td>${c.phone}</td>
+      <td>${c.email || '—'}</td>
+      <td>${c.source}</td>
+      <td>${statusBadge(c.status)}</td>
+      <td>${fmtDate(c.dateAdded)}</td>
+    </tr>
+  `).join('');
+}
+
+// ── CLIENT CARD ───────────────────────────────────────
+function renderClientCard(id) {
+  const c = clients.find(x => x.id === id);
+  if (!c) { navigate('clients'); return; }
+  currentClientId = id;
+
+  document.getElementById('cardAvatar').textContent = c.name.charAt(0).toUpperCase();
+  document.getElementById('cardName').textContent = c.name;
+  document.getElementById('cardMeta').textContent = `${c.source} · добавлен ${fmtDate(c.dateAdded)}`;
+  document.getElementById('cardPhone').textContent = c.phone;
+  document.getElementById('cardEmail').textContent = c.email || '—';
+  document.getElementById('cardSource').textContent = c.source;
+  document.getElementById('cardDate').textContent = fmtDate(c.dateAdded);
+  document.getElementById('cardStatusText').innerHTML = statusBadge(c.status);
+  document.getElementById('cardAmount').value = c.amount || '';
+
+  const sel = document.getElementById('cardStatus');
+  sel.innerHTML = Object.entries(STATUS_LABELS).map(([v, l]) =>
+    `<option value="${v}" ${c.status === v ? 'selected' : ''}>${l}</option>`
+  ).join('');
+
+  renderNotes(c);
+}
+
+function renderNotes(c) {
+  const list = document.getElementById('notesList');
+  if (!c.notes || !c.notes.length) {
+    list.innerHTML = '<p class="no-notes">Заметок пока нет</p>';
+    return;
+  }
+  list.innerHTML = [...c.notes].reverse().map(n => `
+    <div class="note-item">
+      <div class="note-text">${n.text}</div>
+      <div class="note-date">${fmtDate(n.date)} · ${new Date(n.date).toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'})}</div>
+    </div>
+  `).join('');
+}
+
+function addNote() {
+  const input = document.getElementById('noteInput');
+  const text = input.value.trim();
+  if (!text || !currentClientId) return;
+
+  const c = clients.find(x => x.id === currentClientId);
+  if (!c) return;
+  if (!c.notes) c.notes = [];
+  c.notes.push({ text, date: new Date().toISOString() });
+
+  saveClients(clients);
+  input.value = '';
+  renderNotes(c);
+}
+
+function updateClientStatus() {
+  const c = clients.find(x => x.id === currentClientId);
+  if (!c) return;
+  c.status = document.getElementById('cardStatus').value;
+  document.getElementById('cardStatusText').innerHTML = statusBadge(c.status);
+  saveClients(clients);
+}
+
+function updateClientAmount() {
+  const c = clients.find(x => x.id === currentClientId);
+  if (!c) return;
+  c.amount = parseFloat(document.getElementById('cardAmount').value) || 0;
+  saveClients(clients);
+}
+
+function deleteClient() {
+  if (!confirm('Удалить клиента?')) return;
+  clients = clients.filter(x => x.id !== currentClientId);
+  saveClients(clients);
+  navigate('clients');
+}
+
+// ── KANBAN ────────────────────────────────────────────
+function renderKanban() {
+  const cols = [
+    { key: 'new', label: 'Новый', cls: 'col-new' },
+    { key: 'inwork', label: 'В работе', cls: 'col-inwork' },
+    { key: 'paid', label: 'Оплачен', cls: 'col-paid' },
+    { key: 'done', label: 'Завершён', cls: 'col-done' },
+  ];
+
+  document.getElementById('kanbanBoard').innerHTML = cols.map(col => {
+    const items = clients.filter(c => c.status === col.key);
+    const cards = items.length
+      ? items.map(c => `
+        <div class="kanban-card" onclick="navigate('client-card','${c.id}')">
+          <div class="kc-name">${c.name}</div>
+          <div class="kc-phone">${c.phone}</div>
+          <div class="kc-source">${c.source}${c.amount ? ' · ' + c.amount.toLocaleString('ru-RU') + ' ₽' : ''}</div>
+        </div>
+      `).join('')
+      : '<div class="empty-col">Нет клиентов</div>';
+
+    return `
+      <div class="kanban-col ${col.cls}">
+        <div class="kanban-col-header">
+          ${col.label}
+          <span class="col-count">${items.length}</span>
+        </div>
+        <div class="kanban-cards">${cards}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── MODAL ─────────────────────────────────────────────
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('f-name').focus();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  ['f-name','f-phone','f-email','f-amount'].forEach(id => document.getElementById(id).value = '');
+}
+
+function saveClient() {
+  const name = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  if (!name) { alert('Введите имя клиента'); return; }
+  if (!phone) { alert('Введите телефон'); return; }
+
+  const client = {
+    id: uid(),
+    name,
+    phone,
+    email: document.getElementById('f-email').value.trim(),
+    source: document.getElementById('f-source').value,
+    amount: parseFloat(document.getElementById('f-amount').value) || 0,
+    status: 'new',
+    dateAdded: new Date().toISOString(),
+    notes: []
+  };
+
+  clients.unshift(client);
+  saveClients(clients);
+  closeModal();
+
+  if (currentPage === 'clients') renderClients();
+  if (currentPage === 'dashboard') renderDashboard();
+  if (currentPage === 'deals') renderKanban();
+}
+
+// ── SIDEBAR MOBILE ────────────────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+// close modal on overlay click
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ── INIT ──────────────────────────────────────────────
+renderDashboard();
+</script>
+</body>
+</html>

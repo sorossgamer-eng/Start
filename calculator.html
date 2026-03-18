@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор ремонта квартиры</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #050d15 0%, #0d1e30 100%);
+    color: #f0f4f8;
+    min-height: 100vh;
+    padding: 30px 20px;
+  }
+
+  .wrapper {
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  header h1 {
+    font-size: 2em;
+    color: #ff8c00;
+    margin-bottom: 8px;
+  }
+
+  header p {
+    color: #a0b8cc;
+    font-size: 1em;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.9em;
+    color: #a0b8cc;
+    margin-bottom: 6px;
+    margin-top: 18px;
+  }
+
+  label:first-of-type { margin-top: 0; }
+
+  input[type="number"],
+  select {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    color: #f0f4f8;
+    font-size: 1em;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="number"]:focus,
+  select:focus {
+    border-color: #ff8c00;
+  }
+
+  select option { background: #1a2f4a; }
+
+  .btn-calc {
+    width: 100%;
+    margin-top: 24px;
+    padding: 14px;
+    background: #ff8c00;
+    color: #fff;
+    font-size: 1.1em;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .btn-calc:hover { background: #e07b00; }
+  .btn-calc:active { transform: scale(0.98); }
+
+  /* Результат */
+  #result { display: none; }
+
+  .total-label {
+    text-align: center;
+    color: #a0b8cc;
+    font-size: 0.95em;
+    margin-bottom: 6px;
+  }
+
+  .total-price {
+    text-align: center;
+    font-size: 2.6em;
+    font-weight: bold;
+    color: #ff8c00;
+    margin-bottom: 24px;
+  }
+
+  .breakdown {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .breakdown-item {
+    flex: 1;
+    background: rgba(255,255,255,0.07);
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+
+  .breakdown-item .bi-label {
+    font-size: 0.78em;
+    color: #a0b8cc;
+    margin-bottom: 6px;
+  }
+
+  .breakdown-item .bi-value {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #f0f4f8;
+  }
+
+  .breakdown-item .bi-percent {
+    font-size: 0.75em;
+    color: #ff8c00;
+    margin-top: 2px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 20px;
+  }
+
+  .btn-cta {
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    color: #ff8c00;
+    font-size: 1em;
+    font-weight: bold;
+    border: 2px solid #ff8c00;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .btn-cta:hover {
+    background: #ff8c00;
+    color: #fff;
+  }
+
+  /* Форма заявки */
+  #form-section { display: none; }
+
+  .form-section-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 16px;
+    color: #f0f4f8;
+  }
+
+  input[type="text"],
+  input[type="tel"] {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    color: #f0f4f8;
+    font-size: 1em;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus,
+  input[type="tel"]:focus {
+    border-color: #ff8c00;
+  }
+
+  input::placeholder { color: #5a7a94; }
+
+  .btn-submit {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    background: #ff8c00;
+    color: #fff;
+    font-size: 1.05em;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-submit:hover { background: #e07b00; }
+
+  .success-msg {
+    display: none;
+    text-align: center;
+    padding: 20px;
+    color: #4cde90;
+    font-size: 1.05em;
+  }
+
+  @media (max-width: 480px) {
+    header h1 { font-size: 1.6em; }
+    .total-price { font-size: 2em; }
+    .breakdown { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <h1>Калькулятор ремонта</h1>
+    <p>Узнайте стоимость ремонта квартиры за 10 секунд</p>
+  </header>
+
+  <!-- Форма параметров -->
+  <div class="card">
+    <label for="area">Площадь квартиры (м²)</label>
+    <input type="number" id="area" placeholder="Например: 50" min="1" max="1000">
+
+    <label for="repair-type">Тип ремонта</label>
+    <select id="repair-type">
+      <option value="cosmetic">Косметический — 900 ₽/м²</option>
+      <option value="capital">Капитальный — 2 500 ₽/м²</option>
+      <option value="designer">Дизайнерский — 5 000 ₽/м²</option>
+    </select>
+
+    <label for="city">Город</label>
+    <select id="city">
+      <option value="other">Другой город</option>
+      <option value="moscow">Москва</option>
+      <option value="spb">Санкт-Петербург</option>
+    </select>
+
+    <button class="btn-calc" onclick="calculate()">Рассчитать стоимость</button>
+  </div>
+
+  <!-- Результат -->
+  <div class="card" id="result">
+    <p class="total-label">Итоговая стоимость ремонта</p>
+    <div class="total-price" id="total-price">0 ₽</div>
+
+    <div class="breakdown">
+      <div class="breakdown-item">
+        <div class="bi-label">Материалы</div>
+        <div class="bi-value" id="b-materials">0 ₽</div>
+        <div class="bi-percent">40%</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="bi-label">Работа</div>
+        <div class="bi-value" id="b-work">0 ₽</div>
+        <div class="bi-percent">50%</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="bi-label">Накладные</div>
+        <div class="bi-value" id="b-overhead">0 ₽</div>
+        <div class="bi-percent">10%</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <button class="btn-cta" onclick="showForm()">Получить точный расчёт →</button>
+  </div>
+
+  <!-- Форма заявки -->
+  <div class="card" id="form-section">
+    <div class="form-section-title">Оставьте заявку — мы уточним детали и пришлём точную смету</div>
+
+    <label for="name">Ваше имя</label>
+    <input type="text" id="name" placeholder="Иван">
+
+    <label for="phone">Телефон</label>
+    <input type="tel" id="phone" placeholder="+7 999 000 00 00">
+
+    <button class="btn-submit" onclick="submitForm()">Отправить заявку</button>
+
+    <div class="success-msg" id="success-msg">
+      ✓ Заявка принята! Мы свяжемся с вами в течение часа.
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const rates = { cosmetic: 900, capital: 2500, designer: 5000 };
+  const cityCoef = { moscow: 1.3, spb: 1.15, other: 1.0 };
+
+  function fmt(n) {
+    return n.toLocaleString('ru-RU') + ' ₽';
+  }
+
+  function calculate() {
+    const area = parseFloat(document.getElementById('area').value);
+    if (!area || area <= 0) {
+      alert('Введите площадь квартиры');
+      return;
+    }
+
+    const type = document.getElementById('repair-type').value;
+    const city = document.getElementById('city').value;
+
+    const total = Math.round(area * rates[type] * cityCoef[city]);
+    const materials = Math.round(total * 0.4);
+    const work = Math.round(total * 0.5);
+    const overhead = total - materials - work;
+
+    document.getElementById('total-price').textContent = fmt(total);
+    document.getElementById('b-materials').textContent = fmt(materials);
+    document.getElementById('b-work').textContent = fmt(work);
+    document.getElementById('b-overhead').textContent = fmt(overhead);
+
+    const result = document.getElementById('result');
+    result.style.display = 'block';
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function showForm() {
+    const form = document.getElementById('form-section');
+    form.style.display = 'block';
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function submitForm() {
+    const name = document.getElementById('name').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+
+    if (!name) { alert('Введите ваше имя'); return; }
+    if (!phone) { alert('Введите номер телефона'); return; }
+
+    document.getElementById('success-msg').style.display = 'block';
+    document.querySelector('.btn-submit').style.display = 'none';
+  }
+</script>
+</body>
+</html>
