@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>РемонтПро — Ремонт квартир под ключ в Москве</title>
+<style>
+/* ===================== RESET & BASE ===================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: #2d3748;
+  background: #fff;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+img { display: block; max-width: 100%; }
+a { text-decoration: none; color: inherit; }
+
+/* ===================== CSS VARIABLES ===================== */
+:root {
+  --dark:    #1a1a2e;
+  --dark2:   #16213e;
+  --blue:    #0f3460;
+  --accent1: #f7971e;
+  --accent2: #ffd200;
+  --grad:    linear-gradient(135deg, #f7971e, #ffd200);
+  --text:    #2d3748;
+  --gray:    #718096;
+  --light:   #f7f8fc;
+  --white:   #ffffff;
+  --border:  #e2e8f0;
+  --radius:  16px;
+  --shadow:  0 4px 24px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.14);
+}
+
+/* ===================== UTILITIES ===================== */
+.container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+.section { padding: 88px 0; }
+.section--gray { background: var(--light); }
+.section--dark { background: var(--dark); }
+
+.tag {
+  display: inline-block;
+  padding: 5px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(247,151,30,.12);
+  border: 1px solid rgba(247,151,30,.3);
+  color: var(--accent1);
+  margin-bottom: 14px;
+}
+.section-title {
+  font-size: clamp(24px, 3.5vw, 38px);
+  font-weight: 800;
+  line-height: 1.22;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+.section-sub {
+  font-size: 17px;
+  color: var(--gray);
+  max-width: 560px;
+  margin-bottom: 52px;
+}
+.section-title--white { color: #fff; }
+.section-sub--white  { color: rgba(255,255,255,.65); }
+
+/* ===================== BUTTONS ===================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 36px;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+  white-space: nowrap;
+}
+.btn--primary {
+  background: var(--grad);
+  color: var(--dark);
+  box-shadow: 0 6px 24px rgba(247,151,30,.35);
+}
+.btn--primary:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(247,151,30,.5); }
+.btn--primary:active { transform: translateY(0); }
+
+.btn--outline {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,.3);
+}
+.btn--outline:hover { border-color: rgba(255,255,255,.7); background: rgba(255,255,255,.05); }
+
+.btn--white {
+  background: #fff;
+  color: var(--accent1);
+}
+.btn--white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+
+.btn--sm { padding: 12px 24px; font-size: 14px; }
+
+/* ===================== FORMS ===================== */
+.field { margin-bottom: 14px; }
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  color: rgba(255,255,255,.6);
+}
+.field label.dark { color: var(--gray); }
+.field input, .field select {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  appearance: none;
+}
+.field input.glass, .field select.glass {
+  background: rgba(255,255,255,.08);
+  border: 1.5px solid rgba(255,255,255,.14);
+  color: #fff;
+}
+.field input.glass::placeholder { color: rgba(255,255,255,.3); }
+.field input.glass:focus, .field select.glass:focus {
+  border-color: var(--accent2);
+  box-shadow: 0 0 0 3px rgba(255,210,0,.15);
+}
+.field select.glass option { background: #1a1a2e; color: #fff; }
+
+.field input.light, .field select.light {
+  background: var(--light);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+}
+.field input.light::placeholder { color: #aab; }
+.field input.light:focus, .field select.light:focus {
+  border-color: var(--accent1);
+  box-shadow: 0 0 0 3px rgba(247,151,30,.12);
+}
+.field select.light option { background: #fff; color: var(--text); }
+
+/* ===================== HEADER ===================== */
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 900;
+  height: 66px;
+  background: rgba(26,26,46,.96);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  display: flex;
+  align-items: center;
+}
+.header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.logo { font-size: 20px; font-weight: 900; color: #fff; }
+.logo span { color: var(--accent2); }
+
+.nav { display: flex; gap: 4px; }
+.nav a {
+  color: rgba(255,255,255,.6);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: color .2s, background .2s;
+}
+.nav a:hover, .nav a.active {
+  color: #fff;
+  background: rgba(255,255,255,.08);
+}
+
+.header__right { display: flex; align-items: center; gap: 16px; }
+.header__phone {
+  color: rgba(255,255,255,.85);
+  font-weight: 700;
+  font-size: 16px;
+  transition: color .2s;
+}
+.header__phone:hover { color: var(--accent2); }
+
+/* ===================== HAMBURGER ===================== */
+.burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px; height: 36px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+}
+.burger span {
+  display: block;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
+  transition: transform .35s cubic-bezier(.22,1,.36,1), opacity .25s;
+  transform-origin: center;
+}
+.burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 66px; left: 0; right: 0;
+  background: rgba(22,22,46,.98);
+  backdrop-filter: blur(18px);
+  padding: 16px 24px 24px;
+  z-index: 899;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  transform: translateY(-12px);
+  opacity: 0;
+  transition: transform .35s cubic-bezier(.22,1,.36,1), opacity .3s;
+  pointer-events: none;
+}
+.mobile-menu.open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: all;
+}
+.mobile-menu a {
+  display: block;
+  color: rgba(255,255,255,.8);
+  font-size: 17px;
+  font-weight: 600;
+  padding: 13px 0;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  transition: color .2s;
+}
+.mobile-menu a:last-child { border-bottom: none; }
+.mobile-menu a:hover { color: var(--accent2); }
+.mobile-menu__phone {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: rgba(247,151,30,.1);
+  border: 1px solid rgba(247,151,30,.25);
+  border-radius: 12px;
+  color: var(--accent2) !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  justify-content: center;
+  border-bottom: none !important;
+}
+
+@media(max-width:900px) { .nav { display: none; } .burger { display: flex; } }
+@media(max-width:560px) { .header__phone { display: none; } }
+
+/* ===================== BACK TO TOP ===================== */
+#toTop {
+  position: fixed;
+  bottom: 32px; right: 28px;
+  width: 48px; height: 48px;
+  background: var(--grad);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  color: var(--dark);
+  box-shadow: 0 6px 24px rgba(247,151,30,.45);
+  z-index: 800;
+  opacity: 0;
+  transform: translateY(16px) scale(.8);
+  transition: opacity .35s, transform .35s cubic-bezier(.22,1,.36,1);
+  pointer-events: none;
+}
+#toTop.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+#toTop:hover { transform: translateY(-4px) scale(1.08); box-shadow: 0 10px 32px rgba(247,151,30,.6); }
+
+/* ===================== CONTACT FORM SECTION ===================== */
+.contact { background: var(--light); }
+.contact__wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+.contact__info h3 {
+  font-size: clamp(22px,3vw,32px);
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+.contact__info p {
+  color: var(--gray);
+  font-size: 16px;
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+.contact__details { display: flex; flex-direction: column; gap: 14px; }
+.contact__row {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 16px; font-weight: 600; color: var(--text);
+}
+.contact__row-ic {
+  width: 44px; height: 44px;
+  background: var(--grad);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.contact__form {
+  background: #fff;
+  border-radius: 24px;
+  padding: 36px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.contact__form h4 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.contact__form p {
+  color: var(--gray);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+.cf-field { margin-bottom: 14px; }
+.cf-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 6px;
+}
+.cf-field input,
+.cf-field textarea {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--light);
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  resize: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.cf-field input::placeholder,
+.cf-field textarea::placeholder { color: #aab; }
+.cf-field input:focus,
+.cf-field textarea:focus {
+  border-color: var(--accent1);
+  box-shadow: 0 0 0 3px rgba(247,151,30,.1);
+}
+
+/* SUCCESS OVERLAY */
+.cf-success {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(.9);
+  transition: opacity .4s, transform .4s cubic-bezier(.22,1,.36,1);
+}
+.cf-success.show { opacity: 1; transform: scale(1); pointer-events: all; }
+.cf-success__icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  display: block;
+  animation: popIn .5s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes popIn {
+  from { transform: scale(0) rotate(-20deg); }
+  to   { transform: scale(1) rotate(0); }
+}
+.cf-success h4 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+.cf-success p  { color: var(--gray); font-size: 15px; line-height: 1.6; }
+.cf-success__btn {
+  margin-top: 24px;
+  background: var(--grad);
+  color: var(--dark);
+  font-size: 15px;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: transform .2s;
+}
+.cf-success__btn:hover { transform: translateY(-2px); }
+
+@media(max-width:760px) { .contact__wrap { grid-template-columns: 1fr; gap: 36px; } }
+
+/* ===================== HERO ===================== */
+.hero {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 55%, #16213e 100%);
+  display: flex;
+  align-items: center;
+  padding-top: 66px;
+  position: relative;
+  overflow: hidden;
+}
+.hero__glow1 {
+  position: absolute; top: -15%; right: -10%;
+  width: 560px; height: 560px;
+  background: radial-gradient(circle, rgba(233,69,96,.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero__glow2 {
+  position: absolute; bottom: -20%; left: -8%;
+  width: 480px; height: 480px;
+  background: radial-gradient(circle, rgba(247,151,30,.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero__inner {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 64px;
+  align-items: center;
+  padding: 64px 0 80px;
+  position: relative;
+  z-index: 1;
+}
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 24px;
+  background: rgba(255,210,0,.1);
+  border: 1px solid rgba(255,210,0,.28);
+  color: var(--accent2);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 22px;
+}
+.hero h1 {
+  font-size: clamp(28px, 4vw, 50px);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.18;
+  margin-bottom: 18px;
+}
+/* hero h1 em — animated version in WOW section below */
+.hero__sub {
+  color: rgba(255,255,255,.68);
+  font-size: 17px;
+  line-height: 1.7;
+  margin-bottom: 30px;
+  max-width: 520px;
+}
+.hero__feats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 38px;
+}
+.hero__feat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: rgba(255,255,255,.82);
+}
+.hero__feat-ic {
+  width: 30px; height: 30px;
+  background: rgba(255,210,0,.12);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.hero__btns { display: flex; gap: 14px; flex-wrap: wrap; }
+
+/* HERO CARD */
+.hero__card {
+  background: rgba(255,255,255,.07);
+  backdrop-filter: blur(22px);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 24px;
+  padding: 36px 32px;
+}
+.hero__card-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.hero__card-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,.5);
+  text-align: center;
+  margin-bottom: 24px;
+}
+.hero__card .btn { width: 100%; margin-top: 4px; }
+.hero__card-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: rgba(255,255,255,.35);
+  font-size: 12px;
+  margin-top: 14px;
+}
+
+@media(max-width:860px) {
+  .hero__inner { grid-template-columns: 1fr; gap: 40px; }
+  .hero__card { max-width: 480px; }
+}
+
+/* ===================== STATS ===================== */
+.stats { padding: 52px 0; }
+.stats__grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 24px;
+  text-align: center;
+}
+.stats__num {
+  display: block;
+  font-size: clamp(36px, 5vw, 52px);
+  font-weight: 900;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stats__label { color: rgba(255,255,255,.5); font-size: 14px; }
+@media(max-width:560px) { .stats__grid { grid-template-columns: repeat(2,1fr); gap: 32px; } }
+
+/* ===================== ADVANTAGES ===================== */
+.adv__grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 24px;
+}
+.adv__card {
+  background: var(--light);
+  border-radius: 20px;
+  padding: 28px 24px;
+  transition: transform .25s, box-shadow .25s;
+}
+.adv__card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.adv__icon {
+  width: 52px; height: 52px;
+  background: var(--grad);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  margin-bottom: 18px;
+}
+.adv__card h4 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+.adv__card p { font-size: 14px; color: var(--gray); line-height: 1.6; }
+@media(max-width:760px) { .adv__grid { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:480px) { .adv__grid { grid-template-columns: 1fr; } }
+
+/* ===================== SERVICES ===================== */
+.svc__grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 24px;
+}
+.svc__card {
+  background: #fff;
+  border-radius: 20px;
+  border: 2px solid transparent;
+  overflow: hidden;
+  transition: border-color .25s, transform .25s, box-shadow .25s;
+  position: relative;
+}
+.svc__card:hover { border-color: var(--accent1); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.svc__card--hot { border-color: var(--accent1); }
+.svc__badge {
+  position: absolute;
+  top: 14px; right: 14px;
+  background: var(--grad);
+  color: var(--dark);
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  z-index: 1;
+}
+.svc__thumb {
+  height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+  position: relative;
+  overflow: hidden;
+}
+/* Placeholder gradients per service */
+.svc__thumb--1 { background: linear-gradient(135deg,#2d3436,#636e72); }
+.svc__thumb--2 { background: linear-gradient(135deg,#0f3460,#1a1a2e); }
+.svc__thumb--3 { background: linear-gradient(135deg,#3d5a80,#0f3460); }
+.svc__thumb--4 { background: linear-gradient(135deg,#2c3e50,#4a1942); }
+.svc__thumb--5 { background: linear-gradient(135deg,#005c97,#363795); }
+.svc__thumb--6 { background: linear-gradient(135deg,#134e5e,#71b280); }
+
+.svc__body { padding: 22px 22px 24px; }
+.svc__body h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.svc__body p { font-size: 14px; color: var(--gray); line-height: 1.6; margin-bottom: 16px; }
+.svc__price { font-size: 22px; font-weight: 800; color: var(--accent1); margin-bottom: 16px; }
+.svc__price span { font-size: 13px; font-weight: 400; color: var(--gray); }
+
+@media(max-width:760px) { .svc__grid { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:480px) { .svc__grid { grid-template-columns: 1fr; } }
+
+/* ===================== CALCULATOR ===================== */
+.calc {
+  background: linear-gradient(135deg, var(--dark) 0%, var(--blue) 100%);
+  border-radius: 28px;
+  padding: 52px 48px;
+}
+.calc__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 52px;
+  align-items: start;
+}
+.calc__title { font-size: clamp(22px,3vw,30px); font-weight: 800; color: #fff; margin-bottom: 8px; }
+.calc__sub   { color: rgba(255,255,255,.55); font-size: 15px; margin-bottom: 32px; }
+.calc .field label { color: rgba(255,255,255,.65); }
+
+.calc__result {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 20px;
+  padding: 32px;
+}
+.calc__result-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.45);
+  margin-bottom: 8px;
+}
+.calc__total {
+  font-size: clamp(32px,5vw,50px);
+  font-weight: 900;
+  display: block;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 28px;
+  line-height: 1;
+}
+.breakdown { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+.breakdown__row { display: flex; flex-direction: column; gap: 6px; }
+.breakdown__top  { display: flex; justify-content: space-between; font-size: 14px; }
+.breakdown__name { color: rgba(255,255,255,.6); }
+.breakdown__val  { color: #fff; font-weight: 600; }
+.breakdown__bar  { height: 5px; background: rgba(255,255,255,.1); border-radius: 3px; overflow: hidden; }
+.breakdown__fill {
+  height: 100%;
+  background: var(--grad);
+  border-radius: 3px;
+  transition: width .6s ease;
+}
+.calc__note { font-size: 12px; color: rgba(255,255,255,.35); line-height: 1.5; margin-top: 16px; }
+
+@media(max-width:760px) { .calc__grid { grid-template-columns: 1fr; } .calc { padding: 36px 24px; } }
+
+/* ===================== PROCESS ===================== */
+.process__list {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 0;
+  position: relative;
+}
+.process__list::before {
+  content: '';
+  position: absolute;
+  top: 31px; left: 9%; right: 9%;
+  height: 3px;
+  background: var(--grad);
+  border-radius: 2px;
+  z-index: 0;
+}
+.process__step {
+  text-align: center;
+  padding: 0 12px;
+  position: relative;
+  z-index: 1;
+}
+.process__num {
+  width: 62px; height: 62px;
+  background: var(--grad);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 21px;
+  font-weight: 900;
+  color: var(--dark);
+  margin: 0 auto 16px;
+  border: 4px solid #fff;
+  box-shadow: 0 4px 16px rgba(247,151,30,.28);
+}
+.process__step h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.process__step p  { font-size: 13px; color: var(--gray); line-height: 1.5; }
+
+@media(max-width:700px) {
+  .process__list { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .process__list::before { display: none; }
+}
+
+/* ===================== PORTFOLIO ===================== */
+.portfolio__grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  grid-template-rows: auto auto;
+  gap: 20px;
+}
+.portfolio__item {
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: transform .25s;
+}
+.portfolio__item:hover { transform: scale(1.02); }
+.portfolio__item:first-child { grid-column: span 2; }
+
+.portfolio__img {
+  width: 100%;
+  padding-top: 66%;
+  position: relative;
+  overflow: hidden;
+}
+.portfolio__item:first-child .portfolio__img { padding-top: 46%; }
+
+/* Placeholder gradient backgrounds */
+.portfolio__bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+}
+.portfolio__bg--1 { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
+.portfolio__bg--2 { background: linear-gradient(135deg, #2c3e50, #3d5a80); }
+.portfolio__bg--3 { background: linear-gradient(135deg, #134e5e, #2d3436); }
+.portfolio__bg--4 { background: linear-gradient(135deg, #4a1942, #1a1a2e); }
+.portfolio__bg--5 { background: linear-gradient(135deg, #005c97, #134e5e); }
+
+.portfolio__label {
+  position: absolute;
+  top: 14px; left: 14px;
+  background: rgba(0,0,0,.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.15);
+  color: rgba(255,255,255,.75);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+.portfolio__overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,.82));
+  padding: 28px 20px 18px;
+  transform: translateY(100%);
+  transition: transform .3s ease;
+}
+.portfolio__item:hover .portfolio__overlay { transform: translateY(0); }
+.portfolio__overlay h4 { color: #fff; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.portfolio__overlay p  { color: rgba(255,255,255,.7); font-size: 13px; }
+
+/* Before/After slider */
+.portfolio__item--ba { position: relative; }
+.ba-wrap {
+  width: 100%; padding-top: 66%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0;
+  user-select: none;
+}
+.ba-after, .ba-before {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+}
+.ba-after { background: linear-gradient(135deg, #0f3460, #1a1a2e); }
+.ba-before {
+  background: linear-gradient(135deg, #2d3436, #636e72);
+  clip-path: inset(0 50% 0 0);
+  transition: none;
+}
+.ba-label {
+  position: absolute;
+  top: 12px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.ba-label--before { left: 12px; background: rgba(0,0,0,.55); color: rgba(255,255,255,.8); }
+.ba-label--after  { right: 12px; background: var(--grad); color: var(--dark); }
+.ba-line {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  width: 3px;
+  background: #fff;
+  transform: translateX(-50%);
+  cursor: ew-resize;
+  z-index: 10;
+}
+.ba-handle {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 40px; height: 40px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,.3);
+  font-size: 16px;
+  color: var(--dark);
+  cursor: ew-resize;
+}
+
+@media(max-width:600px) {
+  .portfolio__grid { grid-template-columns: 1fr 1fr; }
+  .portfolio__item:first-child { grid-column: span 2; }
+}
+
+/* ===================== REVIEWS ===================== */
+.reviews__grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 24px;
+}
+.review {
+  background: var(--light);
+  border-radius: 20px;
+  padding: 28px;
+  border: 1px solid var(--border);
+  transition: transform .25s, box-shadow .25s;
+}
+.review:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.review__stars { color: var(--accent2); font-size: 18px; margin-bottom: 12px; }
+.review__text  { font-size: 15px; line-height: 1.7; color: var(--text); margin-bottom: 20px; }
+.review__author { display: flex; align-items: center; gap: 12px; }
+.review__avatar {
+  width: 44px; height: 44px;
+  background: var(--grad);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--dark);
+  flex-shrink: 0;
+}
+.review__name { font-weight: 700; font-size: 15px; }
+.review__meta { font-size: 13px; color: var(--gray); }
+
+@media(max-width:760px) { .reviews__grid { grid-template-columns: 1fr 1fr; } }
+@media(max-width:480px) { .reviews__grid { grid-template-columns: 1fr; } }
+
+/* ===================== TRUST ===================== */
+.trust__grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 24px;
+  text-align: center;
+}
+.trust__item { padding: 32px 20px; }
+.trust__icon { font-size: 40px; margin-bottom: 14px; display: block; }
+.trust__item h4 { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+.trust__item p  { font-size: 13px; color: rgba(255,255,255,.48); line-height: 1.6; }
+@media(max-width:600px) { .trust__grid { grid-template-columns: repeat(2,1fr); } }
+
+/* ===================== CTA ===================== */
+.cta {
+  background: linear-gradient(135deg, #e05d00 0%, #f7971e 50%, #ffd200 100%);
+  padding: 88px 0;
+  text-align: center;
+}
+.cta h2 { font-size: clamp(26px,4vw,44px); font-weight: 900; color: #fff; margin-bottom: 10px; }
+.cta p  { font-size: 18px; color: rgba(255,255,255,.85); margin-bottom: 38px; }
+.cta__form {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 560px;
+  margin: 0 auto 14px;
+}
+.cta__form input {
+  flex: 1;
+  min-width: 190px;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  border: 2px solid rgba(255,255,255,.45);
+  background: rgba(255,255,255,.2);
+  color: #fff;
+  font-size: 16px;
+  outline: none;
+}
+.cta__form input::placeholder { color: rgba(255,255,255,.65); }
+.cta__form input:focus { border-color: #fff; }
+.cta__note { color: rgba(255,255,255,.6); font-size: 13px; }
+
+/* ===================== FOOTER ===================== */
+.footer {
+  background: var(--dark);
+  border-top: 1px solid rgba(255,255,255,.06);
+  padding: 28px 0;
+  text-align: center;
+}
+.footer p { color: rgba(255,255,255,.35); font-size: 14px; line-height: 1.7; }
+
+/* ===================== MODAL ===================== */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.72);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: #fff;
+  border-radius: 24px;
+  padding: 40px;
+  max-width: 460px;
+  width: 100%;
+  position: relative;
+  transform: scale(.9);
+  transition: transform .3s;
+}
+.modal-overlay.open .modal { transform: scale(1); }
+.modal__close {
+  position: absolute; top: 14px; right: 14px;
+  width: 34px; height: 34px;
+  background: var(--light);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--gray);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.modal__close:hover { background: var(--border); }
+.modal h3 { font-size: 23px; font-weight: 800; margin-bottom: 6px; }
+.modal p  { font-size: 15px; color: var(--gray); margin-bottom: 24px; }
+.modal .btn { width: 100%; margin-top: 6px; }
+.modal__note { color: var(--gray); font-size: 12px; text-align: center; margin-top: 12px; }
+
+.modal__success { display: none; text-align: center; padding: 16px 0; }
+.modal__success .s-emoji { font-size: 60px; display: block; margin-bottom: 14px; }
+.modal__success h4 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+.modal__success p  { color: var(--gray); font-size: 15px; }
+
+/* ===================== SCROLL ANIMATIONS ===================== */
+.anim {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity .65s cubic-bezier(.22,1,.36,1), transform .65s cubic-bezier(.22,1,.36,1);
+}
+.anim.visible { opacity: 1; transform: translateY(0); }
+.anim--delay1 { transition-delay: .1s; }
+.anim--delay2 { transition-delay: .2s; }
+.anim--delay3 { transition-delay: .3s; }
+.anim--delay4 { transition-delay: .4s; }
+.anim--delay5 { transition-delay: .5s; }
+
+/* ===================== SCROLL PROGRESS BAR ===================== */
+#scrollBar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, #f7971e, #ffd200, #f7971e);
+  background-size: 200%;
+  animation: barShift 2s linear infinite;
+  z-index: 9999;
+  transition: width .1s linear;
+}
+@keyframes barShift {
+  0%   { background-position: 0% }
+  100% { background-position: 200% }
+}
+
+/* ===================== ANIMATED HERO TITLE ===================== */
+@keyframes gradShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(270deg, #f7971e, #ffd200, #ff6b6b, #ffd200, #f7971e);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradShift 4s ease infinite;
+}
+
+/* ===================== HERO PARTICLES ===================== */
+.hero__particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,210,0,.18);
+  animation: floatUp linear infinite;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(0) scale(1); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: .4; }
+  100% { transform: translateY(-100vh) scale(.4); opacity: 0; }
+}
+
+/* ===================== 3D CARD TILT ===================== */
+.tilt {
+  transform-style: preserve-3d;
+  transition: transform .1s ease, box-shadow .3s ease;
+  will-change: transform;
+}
+.tilt:hover { box-shadow: 0 20px 60px rgba(0,0,0,.18); }
+.tilt__inner { transform: translateZ(16px); }
+
+/* ===================== BUTTON RIPPLE ===================== */
+.btn { position: relative; overflow: hidden; }
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,.35);
+  transform: scale(0);
+  animation: ripple .55s linear;
+  pointer-events: none;
+}
+@keyframes ripple {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* ===================== ENHANCED HOVER CARDS ===================== */
+.adv__card {
+  transform: translateY(0);
+  transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease;
+}
+.adv__card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 24px 64px rgba(247,151,30,.15);
+}
+.svc__card {
+  transition: border-color .25s, transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease;
+}
+.svc__card:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 24px 64px rgba(0,0,0,.14);
+}
+.review {
+  transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease;
+}
+.review:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 52px rgba(0,0,0,.1);
+}
+
+/* ===================== CURSOR GLOW ===================== */
+#cursorGlow {
+  position: fixed;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(247,151,30,.07) 0%, transparent 70%);
+  pointer-events: none;
+  transform: translate(-50%,-50%);
+  z-index: 0;
+  transition: opacity .4s;
+}
+
+/* ===================== SECTION DIVIDER ===================== */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(247,151,30,.3), transparent);
+  border: none;
+  margin: 0;
+}
+
+/* ===================== SHINE EFFECT ON BADGE ===================== */
+.hero__badge {
+  position: relative;
+  overflow: hidden;
+}
+.hero__badge::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+  animation: shine 3s ease-in-out infinite;
+}
+@keyframes shine {
+  0%   { left: -100%; }
+  40%  { left: 150%; }
+  100% { left: 150%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<header class="header" id="header">
+  <div class="container">
+    <div class="header__inner">
+      <div class="logo">Ремонт<span>Про</span></div>
+      <nav class="nav" id="nav">
+        <a href="#advantages">Преимущества</a>
+        <a href="#services">Услуги</a>
+        <a href="#calc">Калькулятор</a>
+        <a href="#portfolio">Портфолио</a>
+        <a href="#reviews">Отзывы</a>
+      </nav>
+      <div class="header__right">
+        <a href="tel:+74951234567" class="header__phone">+7 (495) 123-45-67</a>
+        <button class="btn btn--primary btn--sm" onclick="openModal()">Бесплатная смета</button>
+        <button class="burger" id="burger" aria-label="Меню" onclick="toggleMenu()">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE MENU -->
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="#advantages" onclick="closeMenu()">Преимущества</a>
+  <a href="#services"   onclick="closeMenu()">Услуги</a>
+  <a href="#calc"       onclick="closeMenu()">Калькулятор</a>
+  <a href="#portfolio"  onclick="closeMenu()">Портфолио</a>
+  <a href="#reviews"    onclick="closeMenu()">Отзывы</a>
+  <a href="#contact"    onclick="closeMenu()">Контакты</a>
+  <a href="tel:+74951234567" class="mobile-menu__phone">📞 +7 (495) 123-45-67</a>
+</nav>
+
+<!-- BACK TO TOP -->
+<button id="toTop" aria-label="Наверх" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero" id="hero">
+  <div class="hero__glow1"></div>
+  <div class="hero__glow2"></div>
+  <div class="hero__particles" id="particles"></div>
+  <div class="container">
+    <div class="hero__inner">
+      <div class="hero__left">
+        <div class="hero__badge">🏆 #1 в Москве по отзывам клиентов</div>
+        <h1>Ремонт квартир под ключ<br><em>за 60 дней</em><br>с гарантией 3 года</h1>
+        <p class="hero__sub">Фиксированная цена в договоре. Ежедневные фотоотчёты в WhatsApp. Штраф 1% за каждый день просрочки. Собственная бригада без субподряда.</p>
+        <div class="hero__feats">
+          <div class="hero__feat"><div class="hero__feat-ic">📋</div>Договор и смета</div>
+          <div class="hero__feat"><div class="hero__feat-ic">📸</div>Фотоотчёты каждый день</div>
+          <div class="hero__feat"><div class="hero__feat-ic">👷</div>Собственная бригада</div>
+          <div class="hero__feat"><div class="hero__feat-ic">🛡️</div>Гарантия 3 года</div>
+        </div>
+        <div class="hero__btns">
+          <button class="btn btn--primary" onclick="document.getElementById('calc').scrollIntoView({behavior:'smooth'})">Рассчитать стоимость</button>
+          <button class="btn btn--outline" onclick="document.getElementById('portfolio').scrollIntoView({behavior:'smooth'})">Посмотреть работы</button>
+        </div>
+      </div>
+      <div class="hero__card">
+        <div class="hero__card-title">Получите смету за 24 часа</div>
+        <div class="hero__card-sub">Бесплатный выезд замерщика в день обращения</div>
+        <div class="field">
+          <label>Ваше имя</label>
+          <input class="glass" type="text" id="hName" placeholder="Иван Иванов">
+        </div>
+        <div class="field">
+          <label>Телефон</label>
+          <input class="glass" type="tel" id="hPhone" placeholder="+7 (999) 000-00-00">
+        </div>
+        <div class="field">
+          <label>Тип ремонта</label>
+          <select class="glass" id="hType">
+            <option value="">Выберите тип</option>
+            <option>Косметический ремонт</option>
+            <option>Капитальный ремонт</option>
+            <option>Ремонт под ключ</option>
+            <option>Дизайнерский ремонт</option>
+            <option>Ремонт в новостройке</option>
+          </select>
+        </div>
+        <button class="btn btn--primary" onclick="submitHero()" style="width:100%;margin-top:4px">Получить бесплатную смету →</button>
+        <div class="hero__card-note">🔒 Без спама. Только звонок менеджера.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== STATS ==================== -->
+<div class="stats section--dark">
+  <div class="container">
+    <div class="stats__grid">
+      <div><span class="stats__num" data-to="850" data-suffix="+">0</span><div class="stats__label">объектов сдано</div></div>
+      <div><span class="stats__num" data-to="12" data-suffix="">0</span><div class="stats__label">лет на рынке</div></div>
+      <div><span class="stats__num" data-to="98" data-suffix="%">0</span><div class="stats__label">довольных клиентов</div></div>
+      <div><span class="stats__num" data-to="3" data-suffix="">0</span><div class="stats__label">года гарантии</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ADVANTAGES ==================== -->
+<section class="section" id="advantages">
+  <div class="container">
+    <div class="tag">Почему выбирают нас</div>
+    <h2 class="section-title">6 причин доверить нам ремонт</h2>
+    <p class="section-sub">Работаем честно и прозрачно — без скрытых доплат и пустых обещаний</p>
+    <div class="adv__grid">
+      <div class="adv__card anim"><div class="adv__icon">📋</div><h4>Фиксированная цена</h4><p>Цена в договоре не изменится. Никаких доплат — только то, что согласовано на берегу.</p></div>
+      <div class="adv__card anim anim--delay1"><div class="adv__icon">⏱️</div><h4>Штраф за просрочку</h4><p>Задержали сдачу — платим 1% от стоимости за каждый день задержки. Прописано в договоре.</p></div>
+      <div class="adv__card anim anim--delay2"><div class="adv__icon">📸</div><h4>Фотоотчёт каждый день</h4><p>Фото в WhatsApp каждый вечер. Вы видите, что происходит, даже находясь в другом городе.</p></div>
+      <div class="adv__card anim anim--delay3"><div class="adv__icon">👷</div><h4>Собственная бригада</h4><p>Только наши проверенные мастера. Никаких случайных субподрядчиков с улицы.</p></div>
+      <div class="adv__card anim anim--delay4"><div class="adv__icon">🛡️</div><h4>Гарантия 3 года</h4><p>Если что-то пойдёт не так — устраним бесплатно. Гарантийные обязательства в договоре.</p></div>
+      <div class="adv__card anim anim--delay5"><div class="adv__icon">🎨</div><h4>Дизайн-проект в подарок</h4><p>При заказе ремонта под ключ — разрабатываем дизайн-проект вашей квартиры бесплатно.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SERVICES ==================== -->
+<section class="section section--gray" id="services">
+  <div class="container">
+    <div class="tag">Виды работ</div>
+    <h2 class="section-title">Выберите свой вариант ремонта</h2>
+    <p class="section-sub">От быстрого косметического до премиального дизайнерского</p>
+    <div class="svc__grid">
+      <div class="svc__card anim">
+        <div class="svc__thumb svc__thumb--1">🖌️</div>
+        <div class="svc__body">
+          <h3>Косметический</h3>
+          <p>Обои, покраска, замена напольного покрытия. Быстрое обновление без больших вложений.</p>
+          <div class="svc__price">от 900 ₽ <span>/ м²</span></div>
+          <button class="btn btn--primary btn--sm" onclick="openModal()">Заказать →</button>
+        </div>
+      </div>
+      <div class="svc__card svc__card--hot anim anim--delay1">
+        <div class="svc__badge">Популярно</div>
+        <div class="svc__thumb svc__thumb--2">🔨</div>
+        <div class="svc__body">
+          <h3>Капитальный</h3>
+          <p>Замена труб, проводки, стяжка пола — полный цикл отделочных работ с нуля.</p>
+          <div class="svc__price">от 2 500 ₽ <span>/ м²</span></div>
+          <button class="btn btn--primary btn--sm" onclick="openModal()">Заказать →</button>
+        </div>
+      </div>
+      <div class="svc__card anim anim--delay2">
+        <div class="svc__thumb svc__thumb--3">🏠</div>
+        <div class="svc__body">
+          <h3>Под ключ</h3>
+          <p>Полный цикл: от чернового до финишного. Заезжаете в готовую квартиру.</p>
+          <div class="svc__price">от 3 500 ₽ <span>/ м²</span></div>
+          <button class="btn btn--primary btn--sm" onclick="openModal()">Заказать →</button>
+        </div>
+      </div>
+      <div class="svc__card anim anim--delay3">
+        <div class="svc__thumb svc__thumb--4">✨</div>
+        <div class="svc__body">
+          <h3>Дизайнерский</h3>
+          <p>Авторские решения, нестандартные материалы и premium-отделка под ваш вкус.</p>
+          <div class="svc__price">от 6 000 ₽ <span>/ м²</span></div>
+          <button class="btn btn--primary btn--sm" onclick="openModal()">Заказать →</button>
+        </div>
+      </div>
+      <div class="svc__card anim anim--delay4">
+        <div class="svc__thumb svc__thumb--5">🏗️</div>
+        <div class="svc__body">
+          <h3>Новостройка</h3>
+          <p>Специализируемся на отделке квартир в новостройках. Опыт — 500+ объектов.</p>
+          <div class="svc__price">от 2 200 ₽ <span>/ м²</span></div>
+          <button class="btn btn--primary btn--sm" onclick="openModal()">Заказать →</button>
+        </div>
+      </div>
+      <div class="svc__card anim anim--delay5">
+        <div class="svc__thumb svc__thumb--6">🛁</div>
+        <div class="svc__body">
+          <h3>Санузел</h3>
+          <p>Полная реконструкция ванной и туалета. Замена сантехники, плитка, гидроизоляция.</p>
+          <div class="svc__price">от 85 000 ₽ <span>/ санузел</span></div>
+          <button class="btn btn--primary btn--sm" onclick="openModal()">Заказать →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CALCULATOR ==================== -->
+<section class="section" id="calc">
+  <div class="container">
+    <div class="tag">Калькулятор</div>
+    <h2 class="section-title">Рассчитайте стоимость за 30 секунд</h2>
+    <p class="section-sub">Введите параметры — результат появится мгновенно</p>
+    <div class="calc">
+      <div class="calc__grid">
+        <div>
+          <div class="calc__title">Параметры ремонта</div>
+          <div class="calc__sub">Заполните поля слева — результат справа</div>
+          <div class="field">
+            <label>Площадь квартиры (м²)</label>
+            <input class="glass" type="number" id="cArea" placeholder="Например: 52" min="10" oninput="calc()">
+          </div>
+          <div class="field">
+            <label>Тип ремонта</label>
+            <select class="glass" id="cType" onchange="calc()">
+              <option value="">Выберите тип</option>
+              <option value="900">Косметический — 900 ₽/м²</option>
+              <option value="2500">Капитальный — 2 500 ₽/м²</option>
+              <option value="3500">Под ключ — 3 500 ₽/м²</option>
+              <option value="6000">Дизайнерский — 6 000 ₽/м²</option>
+              <option value="2200">Новостройка — 2 200 ₽/м²</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Город</label>
+            <select class="glass" id="cCity" onchange="calc()">
+              <option value="1.3">Москва (коэффициент ×1.3)</option>
+              <option value="1.15">Санкт-Петербург (×1.15)</option>
+              <option value="1.0">Другой город (×1.0)</option>
+            </select>
+          </div>
+          <button class="btn btn--primary" style="width:100%;margin-top:8px" onclick="openModal()">Получить точную смету →</button>
+        </div>
+        <div class="calc__result">
+          <div class="calc__result-label">Предварительная стоимость</div>
+          <span class="calc__total" id="cTotal">— ₽</span>
+          <div class="breakdown">
+            <div class="breakdown__row">
+              <div class="breakdown__top"><span class="breakdown__name">Материалы (40%)</span><span class="breakdown__val" id="cMat">— ₽</span></div>
+              <div class="breakdown__bar"><div class="breakdown__fill" id="bMat" style="width:40%"></div></div>
+            </div>
+            <div class="breakdown__row">
+              <div class="breakdown__top"><span class="breakdown__name">Работа (50%)</span><span class="breakdown__val" id="cWork">— ₽</span></div>
+              <div class="breakdown__bar"><div class="breakdown__fill" id="bWork" style="width:50%"></div></div>
+            </div>
+            <div class="breakdown__row">
+              <div class="breakdown__top"><span class="breakdown__name">Накладные расходы (10%)</span><span class="breakdown__val" id="cOther">— ₽</span></div>
+              <div class="breakdown__bar"><div class="breakdown__fill" id="bOther" style="width:10%"></div></div>
+            </div>
+          </div>
+          <button class="btn btn--primary" style="width:100%" onclick="openModal()">Получить детальную смету →</button>
+          <div class="calc__note">* Предварительный расчёт. Точная стоимость определяется после бесплатного выезда замерщика.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PROCESS ==================== -->
+<section class="section section--gray">
+  <div class="container">
+    <div class="tag">Как мы работаем</div>
+    <h2 class="section-title">7 шагов от звонка до новоселья</h2>
+    <p class="section-sub">Прозрачный процесс без неожиданностей на каждом этапе</p>
+    <div class="process__list">
+      <div class="process__step anim"><div class="process__num">1</div><h4>Заявка</h4><p>Звоните или оставляете заявку онлайн</p></div>
+      <div class="process__step anim anim--delay1"><div class="process__num">2</div><h4>Замер</h4><p>Бесплатный выезд замерщика в день обращения</p></div>
+      <div class="process__step anim anim--delay2"><div class="process__num">3</div><h4>Договор</h4><p>Фиксируем цену и сроки. Без скрытых доплат.</p></div>
+      <div class="process__step anim anim--delay3"><div class="process__num">4</div><h4>Материалы</h4><p>Закупаем по вашему согласованному списку</p></div>
+      <div class="process__step anim anim--delay4"><div class="process__num">5</div><h4>Ремонт</h4><p>Работаем ежедневно. Фотоотчёт каждый вечер.</p></div>
+      <div class="process__step anim anim--delay5"><div class="process__num">6</div><h4>Приёмка</h4><p>Принимаете по чек-листу из 120 пунктов</p></div>
+      <div class="process__step anim"><div class="process__num">7</div><h4>Гарантия</h4><p>3 года гарантии на все виды работ</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PORTFOLIO ==================== -->
+<section class="section" id="portfolio">
+  <div class="container">
+    <div class="tag">Наши работы</div>
+    <h2 class="section-title">Портфолио — реальные объекты</h2>
+    <p class="section-sub">Фотографии наших работ без фотошопа. Наведите — увидите детали проекта.</p>
+    <div class="portfolio__grid">
+
+      <!-- Before/After slider -->
+      <div class="portfolio__item portfolio__item--ba anim">
+        <div class="ba-wrap" id="baWrap">
+          <div class="ba-after"><span class="portfolio__bg portfolio__bg--1" style="font-size:70px">🛋️</span></div>
+          <div class="ba-before" id="baBefore"><span class="portfolio__bg portfolio__bg--3" style="font-size:70px;filter:grayscale(1)">🏚️</span></div>
+          <div class="ba-label ba-label--before">До</div>
+          <div class="ba-label ba-label--after">После</div>
+          <div class="ba-line" id="baLine">
+            <div class="ba-handle">⇔</div>
+          </div>
+        </div>
+        <div class="portfolio__overlay" style="transform:translateY(0)">
+          <h4>Гостиная, Москва — 68 м²</h4>
+          <p>Капитальный ремонт · 52 дня · 2 400 000 ₽</p>
+        </div>
+      </div>
+
+      <div class="portfolio__item anim anim--delay1">
+        <div class="portfolio__img">
+          <div class="portfolio__bg portfolio__bg--2">🛏️</div>
+        </div>
+        <div class="portfolio__label">Новостройка</div>
+        <div class="portfolio__overlay"><h4>Студия — 38 м²</h4><p>Под ключ · 34 дня · 980 000 ₽</p></div>
+      </div>
+
+      <div class="portfolio__item anim anim--delay2">
+        <div class="portfolio__img">
+          <div class="portfolio__bg portfolio__bg--3">🍳</div>
+        </div>
+        <div class="portfolio__label">Дизайнерский</div>
+        <div class="portfolio__overlay"><h4>Кухня-гостиная — 44 м²</h4><p>Дизайнерский · 41 день · 1 850 000 ₽</p></div>
+      </div>
+
+      <div class="portfolio__item anim anim--delay3">
+        <div class="portfolio__img">
+          <div class="portfolio__bg portfolio__bg--4">🛁</div>
+        </div>
+        <div class="portfolio__label">Санузел</div>
+        <div class="portfolio__overlay"><h4>Ванная — совмещённая</h4><p>Полная реконструкция · 14 дней · 195 000 ₽</p></div>
+      </div>
+
+      <div class="portfolio__item anim anim--delay4">
+        <div class="portfolio__img">
+          <div class="portfolio__bg portfolio__bg--5">🏠</div>
+        </div>
+        <div class="portfolio__label">Капитальный</div>
+        <div class="portfolio__overlay"><h4>3-комнатная квартира — 92 м²</h4><p>Капитальный · 67 дней · 3 200 000 ₽</p></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== REVIEWS ==================== -->
+<section class="section section--gray" id="reviews">
+  <div class="container">
+    <div class="tag">Отзывы клиентов</div>
+    <h2 class="section-title">Что говорят наши клиенты</h2>
+    <p class="section-sub">Реальные отзывы — без редактуры и приукрашиваний</p>
+    <div class="reviews__grid">
+      <div class="review anim">
+        <div class="review__stars">★★★★★</div>
+        <p class="review__text">«Сдали квартиру на 3 дня раньше срока. Ежедневные фотоотчёты — это отдельный кайф, всё видно в реальном времени. Цена не изменилась ни на рубль. Рекомендую всем без исключения!»</p>
+        <div class="review__author">
+          <div class="review__avatar">А</div>
+          <div><div class="review__name">Алексей Морозов</div><div class="review__meta">Капитальный, 68 м² · Москва, Хорошёво</div></div>
+        </div>
+      </div>
+      <div class="review anim anim--delay1">
+        <div class="review__stars">★★★★★</div>
+        <p class="review__text">«Ремонт в новостройке — цена не изменилась ни на рубль, как в договоре. Отдельное спасибо менеджеру Ирине, всегда на связи и отвечала мгновенно. Уже рекомендую знакомым.»</p>
+        <div class="review__author">
+          <div class="review__avatar">М</div>
+          <div><div class="review__name">Марина Соколова</div><div class="review__meta">Новостройка, 54 м² · Москва, Бутово</div></div>
+        </div>
+      </div>
+      <div class="review anim anim--delay2">
+        <div class="review__stars">★★★★★</div>
+        <p class="review__text">«Второй раз обращаемся — первый раз делали ванную, теперь капитальный на всю квартиру. Уже рекомендовали 4 знакомым, все довольны. Честная компания, работают как обещают.»</p>
+        <div class="review__author">
+          <div class="review__avatar">Д</div>
+          <div><div class="review__name">Дмитрий Иванов</div><div class="review__meta">Капитальный, 82 м² · Подмосковье, Химки</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TRUST ==================== -->
+<section class="section section--dark">
+  <div class="container">
+    <div class="trust__grid">
+      <div class="trust__item anim"><span class="trust__icon">📄</span><h4>Официальный договор</h4><p>Чёткие обязательства сторон, сроки и цены — всё письменно и юридически закреплено</p></div>
+      <div class="trust__item anim anim--delay1"><span class="trust__icon">🏆</span><h4>Лицензия СРО</h4><p>Допуск к строительным работам согласно законодательству Российской Федерации</p></div>
+      <div class="trust__item anim anim--delay2"><span class="trust__icon">💰</span><h4>Страховка</h4><p>Страхование гражданской ответственности на каждый объект — до 5 миллионов рублей</p></div>
+      <div class="trust__item anim anim--delay3"><span class="trust__icon">🔧</span><h4>Собственный склад</h4><p>Всегда в наличии расходные материалы и инструмент — никаких задержек по поставкам</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CTA ==================== -->
+<section class="cta">
+  <div class="container">
+    <h2>Получите бесплатную смету за 24 часа</h2>
+    <p>Бесплатный выезд замерщика. Смета без обязательств.</p>
+    <form class="cta__form" onsubmit="submitCta(event)">
+      <input type="text" id="ctaName" placeholder="Ваше имя" required>
+      <input type="tel" id="ctaPhone" placeholder="+7 (999) 000-00-00" required>
+      <button type="submit" class="btn btn--white">Получить смету →</button>
+    </form>
+    <div class="cta__note">🔒 Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности</div>
+  </div>
+</section>
+
+<!-- ==================== CONTACT FORM ==================== -->
+<section class="section contact" id="contact">
+  <div class="container">
+    <div class="contact__wrap">
+      <div class="contact__info anim">
+        <div class="tag">Связаться с нами</div>
+        <h3>Есть вопросы?<br>Напишите нам</h3>
+        <p>Ответим в течение 30 минут в рабочее время. Или позвоните — перезвоним бесплатно.</p>
+        <div class="contact__details">
+          <div class="contact__row">
+            <div class="contact__row-ic">📞</div>
+            <a href="tel:+74951234567">+7 (495) 123-45-67</a>
+          </div>
+          <div class="contact__row">
+            <div class="contact__row-ic">✉️</div>
+            <span>info@remontpro.ru</span>
+          </div>
+          <div class="contact__row">
+            <div class="contact__row-ic">📍</div>
+            <span>Москва и Московская область</span>
+          </div>
+          <div class="contact__row">
+            <div class="contact__row-ic">🕐</div>
+            <span>Пн–Вс, 9:00 — 21:00</span>
+          </div>
+        </div>
+      </div>
+      <div class="contact__form anim anim--delay2">
+        <h4>Напишите нам</h4>
+        <p>Опишите задачу — предложим решение</p>
+        <form id="cfForm" onsubmit="submitCF(event)">
+          <div class="cf-field">
+            <label>Ваше имя</label>
+            <input type="text" placeholder="Иван Иванов" required>
+          </div>
+          <div class="cf-field">
+            <label>Email</label>
+            <input type="email" placeholder="ivan@mail.ru" required>
+          </div>
+          <div class="cf-field">
+            <label>Сообщение</label>
+            <textarea rows="4" placeholder="Расскажите о вашем проекте..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn--primary" style="width:100%;margin-top:4px">Отправить сообщение →</button>
+        </form>
+        <div class="cf-success" id="cfSuccess">
+          <span class="cf-success__icon">🎉</span>
+          <h4>Сообщение отправлено!</h4>
+          <p>Мы получили вашу заявку и ответим<br>в течение <strong>30 минут</strong>.</p>
+          <button class="cf-success__btn" onclick="resetCF()">Отправить ещё раз</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="footer">
+  <div class="container">
+    <p>© 2025 РемонтПро. Ремонт квартир в Москве и Московской области.</p>
+    <p>ООО «РемонтПро» · ИНН 7712345678 · Договор и гарантия на каждый объект</p>
+  </div>
+</footer>
+
+<!-- ==================== MODAL ==================== -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeOutside(event)">
+  <div class="modal">
+    <button class="modal__close" onclick="closeModal()">✕</button>
+    <div id="mForm">
+      <h3>Получите бесплатную смету</h3>
+      <p>Перезвоним в течение 15 минут. Бесплатный выезд замерщика.</p>
+      <div class="field">
+        <label class="dark">Ваше имя</label>
+        <input class="light" type="text" id="mName" placeholder="Иван Иванов">
+      </div>
+      <div class="field">
+        <label class="dark">Телефон</label>
+        <input class="light" type="tel" id="mPhone" placeholder="+7 (999) 000-00-00">
+      </div>
+      <div class="field">
+        <label class="dark">Тип ремонта</label>
+        <select class="light" id="mType">
+          <option value="">Выберите тип</option>
+          <option>Косметический ремонт</option>
+          <option>Капитальный ремонт</option>
+          <option>Ремонт под ключ</option>
+          <option>Дизайнерский ремонт</option>
+          <option>Ремонт в новостройке</option>
+        </select>
+      </div>
+      <button class="btn btn--primary" onclick="submitModal()" style="width:100%;margin-top:4px">Отправить заявку →</button>
+      <div class="modal__note">🔒 Без спама. Только звонок менеджера.</div>
+    </div>
+    <div class="modal__success" id="mSuccess">
+      <span class="s-emoji">🎉</span>
+      <h4>Заявка принята!</h4>
+      <p>Перезвоним в течение <strong>15 минут</strong> и договоримся об удобном времени для бесплатного замера.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SCRIPTS ==================== -->
+<script>
+/* ---- MOBILE MENU ---- */
+function toggleMenu() {
+  const burger = document.getElementById('burger');
+  const menu   = document.getElementById('mobileMenu');
+  const open   = menu.classList.toggle('open');
+  burger.classList.toggle('open', open);
+  menu.style.display = open ? 'block' : 'none';
+  if (open) { setTimeout(() => menu.classList.add('open'), 10); }
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+function closeMenu() {
+  const menu = document.getElementById('mobileMenu');
+  const burger = document.getElementById('burger');
+  menu.classList.remove('open');
+  burger.classList.remove('open');
+  document.body.style.overflow = '';
+  setTimeout(() => { menu.style.display = 'none'; }, 350);
+}
+// Init mobile menu hidden
+document.getElementById('mobileMenu').style.display = 'none';
+
+/* ---- BACK TO TOP ---- */
+const toTop = document.getElementById('toTop');
+window.addEventListener('scroll', () => {
+  toTop.classList.toggle('show', window.scrollY > 400);
+}, { passive: true });
+
+/* ---- CONTACT FORM ---- */
+function submitCF(e) {
+  e.preventDefault();
+  const success = document.getElementById('cfSuccess');
+  success.classList.add('show');
+}
+function resetCF() {
+  document.getElementById('cfSuccess').classList.remove('show');
+  document.getElementById('cfForm').reset();
+}
+
+/* ---- SCROLL PROGRESS BAR ---- */
+const scrollBar = document.createElement('div');
+scrollBar.id = 'scrollBar';
+document.body.prepend(scrollBar);
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+  scrollBar.style.width = pct + '%';
+}, { passive: true });
+
+/* ---- CURSOR GLOW ---- */
+const glow = document.createElement('div');
+glow.id = 'cursorGlow';
+document.body.appendChild(glow);
+document.addEventListener('mousemove', e => {
+  glow.style.left = e.clientX + 'px';
+  glow.style.top  = e.clientY + 'px';
+});
+
+/* ---- PARTICLES ---- */
+(function() {
+  const wrap = document.getElementById('particles');
+  if (!wrap) return;
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = 4 + Math.random() * 10;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      bottom:${-size}px;
+      animation-duration:${8 + Math.random()*12}s;
+      animation-delay:${Math.random()*10}s;
+      opacity:${.1 + Math.random()*.3};
+    `;
+    wrap.appendChild(p);
+  }
+})();
+
+/* ---- PARALLAX HERO ---- */
+const hero = document.querySelector('.hero');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if (y < window.innerHeight * 1.2) {
+    hero.style.backgroundPositionY = (y * .35) + 'px';
+  }
+}, { passive: true });
+
+/* ---- 3D CARD TILT ---- */
+document.querySelectorAll('.adv__card, .svc__card, .review').forEach(card => {
+  card.classList.add('tilt');
+  card.addEventListener('mousemove', e => {
+    const r  = card.getBoundingClientRect();
+    const cx = r.left + r.width  / 2;
+    const cy = r.top  + r.height / 2;
+    const dx = (e.clientX - cx) / (r.width  / 2);
+    const dy = (e.clientY - cy) / (r.height / 2);
+    card.style.transform = `perspective(600px) rotateY(${dx * 6}deg) rotateX(${-dy * 6}deg) translateY(-8px) scale(1.02)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+  });
+});
+
+/* ---- RIPPLE ON BUTTONS ---- */
+document.querySelectorAll('.btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    const r    = btn.getBoundingClientRect();
+    const size = Math.max(r.width, r.height) * 1.5;
+    const el   = document.createElement('span');
+    el.className = 'ripple';
+    el.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${e.clientX - r.left - size/2}px;
+      top:${e.clientY - r.top  - size/2}px;
+    `;
+    btn.appendChild(el);
+    setTimeout(() => el.remove(), 600);
+  });
+});
+
+/* ---- SMOOTH NAV SCROLL ---- */
+document.querySelectorAll('a[href^="#"], button[data-href]').forEach(a => {
+  a.addEventListener('click', e => {
+    const href = a.getAttribute('href') || a.dataset.href;
+    if (!href || !href.startsWith('#')) return;
+    const target = document.querySelector(href);
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+/* ---- MODAL ---- */
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  setTimeout(() => {
+    document.getElementById('mForm').style.display = '';
+    document.getElementById('mSuccess').style.display = 'none';
+  }, 300);
+}
+function closeOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+function submitModal() {
+  const n = document.getElementById('mName').value;
+  const p = document.getElementById('mPhone').value;
+  if (!n || !p) { alert('Пожалуйста, заполните имя и телефон'); return; }
+  document.getElementById('mForm').style.display = 'none';
+  document.getElementById('mSuccess').style.display = 'block';
+  console.log('Заявка:', { name: n, phone: p });
+}
+
+/* ---- HERO FORM ---- */
+function submitHero() {
+  const n = document.getElementById('hName').value;
+  const p = document.getElementById('hPhone').value;
+  if (!n || !p) { openModal(); return; }
+  console.log('Hero заявка:', { name: n, phone: p });
+  alert('✅ Заявка принята! Перезвоним в течение 15 минут.');
+}
+
+/* ---- CTA FORM ---- */
+function submitCta(e) {
+  e.preventDefault();
+  console.log('CTA заявка:', { name: document.getElementById('ctaName').value, phone: document.getElementById('ctaPhone').value });
+  alert('✅ Заявка принята! Перезвоним в течение 15 минут.');
+  e.target.reset();
+}
+
+/* ---- CALCULATOR ---- */
+function fmt(n) { return n.toLocaleString('ru-RU') + ' ₽'; }
+function calc() {
+  const area  = parseFloat(document.getElementById('cArea').value);
+  const price = parseFloat(document.getElementById('cType').value);
+  const coef  = parseFloat(document.getElementById('cCity').value);
+  if (!area || !price || area < 1) {
+    ['cTotal','cMat','cWork','cOther'].forEach(id => document.getElementById(id).textContent = '— ₽');
+    return;
+  }
+  const total = Math.round(area * price * coef);
+  document.getElementById('cTotal').textContent = fmt(total);
+  document.getElementById('cMat').textContent   = fmt(Math.round(total * .4));
+  document.getElementById('cWork').textContent  = fmt(Math.round(total * .5));
+  document.getElementById('cOther').textContent = fmt(Math.round(total * .1));
+}
+
+/* ---- COUNTERS ---- */
+function runCounters() {
+  document.querySelectorAll('.stats__num').forEach(el => {
+    const target = +el.dataset.to;
+    const suffix = el.dataset.suffix;
+    let cur = 0;
+    const step = target / 55;
+    const t = setInterval(() => {
+      cur = Math.min(cur + step, target);
+      el.textContent = Math.floor(cur) + suffix;
+      if (cur >= target) clearInterval(t);
+    }, 25);
+  });
+}
+let countersRan = false;
+new IntersectionObserver(([e]) => {
+  if (e.isIntersecting && !countersRan) { countersRan = true; runCounters(); }
+}, { threshold: .3 }).observe(document.querySelector('.stats'));
+
+/* ---- SCROLL ANIMATIONS ---- */
+const animObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: .1 });
+document.querySelectorAll('.anim').forEach(el => animObs.observe(el));
+
+/* ---- ACTIVE NAV ---- */
+const sections = ['hero','advantages','services','calc','portfolio','reviews'];
+const navLinks = document.querySelectorAll('.nav a');
+window.addEventListener('scroll', () => {
+  const scroll = window.scrollY + 100;
+  sections.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (scroll >= el.offsetTop && scroll < el.offsetTop + el.offsetHeight) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      if (navLinks[i - 1]) navLinks[i - 1].classList.add('active');
+    }
+  });
+}, { passive: true });
+
+/* ---- BEFORE/AFTER SLIDER ---- */
+(function () {
+  const wrap   = document.getElementById('baWrap');
+  const before = document.getElementById('baBefore');
+  const line   = document.getElementById('baLine');
+  if (!wrap) return;
+  let dragging = false;
+
+  function setPos(x) {
+    const rect = wrap.getBoundingClientRect();
+    let pct = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
+    line.style.left = (pct * 100) + '%';
+    before.style.clipPath = `inset(0 ${(1 - pct) * 100}% 0 0)`;
+  }
+
+  line.addEventListener('mousedown',  e => { dragging = true; e.preventDefault(); });
+  line.addEventListener('touchstart', e => { dragging = true; }, { passive: true });
+
+  document.addEventListener('mousemove',  e => { if (dragging) setPos(e.clientX); });
+  document.addEventListener('touchmove',  e => { if (dragging) setPos(e.touches[0].clientX); }, { passive: true });
+  document.addEventListener('mouseup',    () => dragging = false);
+  document.addEventListener('touchend',   () => dragging = false);
+
+  wrap.addEventListener('click', e => setPos(e.clientX));
+  setPos(wrap.getBoundingClientRect().left + wrap.getBoundingClientRect().width * .5);
+})();
+</script>
+</body>
+</html>
