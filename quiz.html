@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Квиз — Реставрация изделий из кожи</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 620px;
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    display: none;
+    margin-bottom: 24px;
+  }
+  .progress-wrap.visible { display: block; }
+  .progress-label {
+    color: rgba(255,255,255,0.7);
+    font-size: 14px;
+    margin-bottom: 8px;
+    text-align: right;
+  }
+  .progress-bar {
+    height: 8px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f7971e, #ffd200);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* CARD */
+  .card {
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 24px;
+    padding: 44px 40px;
+    text-align: center;
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideLeft {
+    from { opacity: 0; transform: translateX(60px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .card.slide { animation: slideLeft 0.4s ease; }
+
+  /* START */
+  .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    color: #1a1a2e;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .start-title {
+    font-size: clamp(22px, 5vw, 32px);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.3;
+    margin-bottom: 16px;
+  }
+
+  .start-title span {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .start-sub {
+    color: rgba(255,255,255,0.65);
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+
+  .time-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: rgba(255,255,255,0.5);
+    font-size: 14px;
+    margin-bottom: 36px;
+  }
+
+  .time-badge svg { width:16px; height:16px; fill: #ffd200; }
+
+  /* BUTTONS */
+  .btn-primary {
+    display: inline-block;
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    color: #1a1a2e;
+    font-weight: 800;
+    font-size: 18px;
+    padding: 18px 48px;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 8px 32px rgba(247,151,30,0.4);
+    width: 100%;
+  }
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(247,151,30,0.55);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* QUESTION */
+  .q-number {
+    font-size: 13px;
+    color: #ffd200;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .q-text {
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.4;
+    margin-bottom: 32px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .option {
+    background: rgba(255,255,255,0.07);
+    border: 2px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 18px 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.25s;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 500;
+    text-align: left;
+  }
+
+  .option:hover {
+    background: rgba(247,151,30,0.12);
+    border-color: #f7971e;
+    transform: translateX(4px);
+  }
+
+  .option.selected {
+    background: linear-gradient(135deg, rgba(247,151,30,0.25), rgba(255,210,0,0.15));
+    border-color: #ffd200;
+  }
+
+  .option-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+
+  /* RESULT */
+  .result-emoji {
+    font-size: 64px;
+    margin-bottom: 16px;
+    display: block;
+    animation: bounce 0.6s ease;
+  }
+
+  @keyframes bounce {
+    0%   { transform: scale(0.5); opacity: 0; }
+    70%  { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .result-title {
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+
+  .result-score {
+    display: inline-block;
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 48px;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+
+  .result-desc {
+    color: rgba(255,255,255,0.75);
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 28px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: left;
+  }
+
+  .result-rec {
+    background: linear-gradient(135deg, rgba(247,151,30,0.15), rgba(255,210,0,0.08));
+    border: 1px solid rgba(255,210,0,0.3);
+    border-radius: 14px;
+    padding: 20px;
+    color: #fff;
+    font-size: 15px;
+    line-height: 1.6;
+    text-align: left;
+    margin-bottom: 28px;
+  }
+
+  .result-rec strong { color: #ffd200; }
+
+  /* FORM */
+  .form-title {
+    font-size: clamp(18px, 3.5vw, 22px);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .form-sub {
+    color: rgba(255,255,255,0.55);
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+    text-align: left;
+  }
+
+  .form-group label {
+    display: block;
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .form-group input {
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input::placeholder { color: rgba(255,255,255,0.3); }
+  .form-group input:focus { border-color: #ffd200; }
+
+  .form-note {
+    color: rgba(255,255,255,0.35);
+    font-size: 12px;
+    margin-top: 14px;
+  }
+
+  /* SUCCESS */
+  .success-icon { font-size: 72px; margin-bottom: 16px; display: block; }
+  .success-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+  .success-text {
+    color: rgba(255,255,255,0.65);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 32px 24px; }
+    .option { padding: 16px 18px; font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-label" id="progressLabel">Вопрос 1 из 5</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <div class="card" id="card">
+    <!-- Старт -->
+    <div id="screenStart">
+      <div class="badge">🎯 Бесплатный тест</div>
+      <h1 class="start-title">Как увеличить прибыль <span>на 30%.</span><br>Что нужно добавить в твой бизнес?</h1>
+      <p class="start-sub">Пройди короткий тест и узнай, какие услуги помогут тебе зарабатывать больше уже в этом месяце — в нише реставрации изделий из кожи.</p>
+      <div class="time-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+        2 минуты · 5 вопросов · Бесплатно
+      </div>
+      <button class="btn-primary" onclick="startQuiz()">Пройти тест за 2 минуты →</button>
+    </div>
+
+    <!-- Вопросы -->
+    <div id="screenQuestion" style="display:none">
+      <div class="q-number" id="qNumber">Вопрос 1 из 5</div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="qOptions"></div>
+    </div>
+
+    <!-- Результат -->
+    <div id="screenResult" style="display:none">
+      <span class="result-emoji" id="resultEmoji"></span>
+      <div class="result-title" id="resultTitle"></div>
+      <div class="result-score" id="resultScore"></div>
+      <div class="result-desc" id="resultDesc"></div>
+      <div class="result-rec" id="resultRec"></div>
+
+      <div class="form-title">Получить подробную рекомендацию</div>
+      <div class="form-sub">Разберём твою ситуацию и пришлём готовый план роста</div>
+
+      <form onsubmit="submitForm(event)">
+        <div class="form-group">
+          <label>Ваше имя</label>
+          <input type="text" id="formName" placeholder="Иван Иванов" required>
+        </div>
+        <div class="form-group">
+          <label>Телефон или email</label>
+          <input type="text" id="formContact" placeholder="+7 999 000-00-00" required>
+        </div>
+        <button type="submit" class="btn-primary" style="margin-top:8px">Получить рекомендацию →</button>
+        <div class="form-note">🔒 Никакого спама. Только ваш персональный план.</div>
+      </form>
+    </div>
+
+    <!-- Успех -->
+    <div id="screenSuccess" style="display:none">
+      <span class="success-icon">🎉</span>
+      <div class="success-title">Отлично, заявка принята!</div>
+      <p class="success-text">Мы свяжемся с вами в течение <strong style="color:#ffd200">24 часов</strong> и пришлём персональный план роста прибыли для вашего бизнеса.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    text: "Есть ли у вас услуги окраски изделий из кожи и ремонт жидкой кожей?",
+    options: [
+      { icon: "✅", text: "Да, оказываем эти услуги", value: 1 },
+      { icon: "❌", text: "Нет, таких услуг нет", value: 0 }
+    ]
+  },
+  {
+    text: "Ваши конкуренты оказывают эти услуги?",
+    options: [
+      { icon: "🔥", text: "Да, уже оказывают", value: 1 },
+      { icon: "😌", text: "Нет, не оказывают", value: 0 }
+    ]
+  },
+  {
+    text: "Есть ли необходимость применения этих услуг у ваших клиентов?",
+    options: [
+      { icon: "👍", text: "Да, клиенты спрашивают", value: 1 },
+      { icon: "🤔", text: "Не замечал такого спроса", value: 0 }
+    ]
+  },
+  {
+    text: "Влияет ли отсутствие этих услуг на вашу прибыль?",
+    options: [
+      { icon: "📉", text: "Да, теряю клиентов и деньги", value: 1 },
+      { icon: "😐", text: "Не думал об этом", value: 0 }
+    ]
+  },
+  {
+    text: "Ваши клиенты нуждаются в этих услугах?",
+    options: [
+      { icon: "💬", text: "Да, они часто просят", value: 1 },
+      { icon: "❓", text: "Не уверен", value: 0 }
+    ]
+  }
+];
+
+let current = 0;
+let answers = [];
+
+function startQuiz() {
+  current = 0;
+  answers = [];
+  document.getElementById('progressWrap').classList.add('visible');
+  showQuestion();
+}
+
+function showQuestion() {
+  const card = document.getElementById('card');
+  card.className = 'card slide';
+  setTimeout(() => card.className = 'card', 400);
+
+  document.getElementById('screenStart').style.display = 'none';
+  document.getElementById('screenResult').style.display = 'none';
+  document.getElementById('screenQuestion').style.display = 'block';
+
+  const q = questions[current];
+  document.getElementById('qNumber').textContent = `Вопрос ${current + 1} из ${questions.length}`;
+  document.getElementById('qText').textContent = q.text;
+
+  updateProgress();
+
+  const optWrap = document.getElementById('qOptions');
+  optWrap.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `<span class="option-icon">${opt.icon}</span><span>${opt.text}</span>`;
+    div.onclick = () => selectAnswer(opt.value, div);
+    optWrap.appendChild(div);
+  });
+}
+
+function selectAnswer(value, el) {
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  answers.push(value);
+
+  setTimeout(() => {
+    current++;
+    if (current < questions.length) {
+      showQuestion();
+    } else {
+      showResult();
+    }
+  }, 450);
+}
+
+function updateProgress() {
+  const pct = (current / questions.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `Вопрос ${current + 1} из ${questions.length}`;
+}
+
+function showResult() {
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressLabel').textContent = 'Тест завершён!';
+
+  document.getElementById('screenQuestion').style.display = 'none';
+
+  const card = document.getElementById('card');
+  card.className = 'card slide';
+  setTimeout(() => card.className = 'card', 400);
+
+  document.getElementById('screenResult').style.display = 'block';
+
+  const score = answers.reduce((a, b) => a + b, 0);
+  let emoji, title, desc, rec;
+
+  if (score >= 4) {
+    emoji = '🚀';
+    title = 'Высокий потенциал роста!';
+    desc = `Твой результат показывает: ты уже видишь проблему и чувствуешь потери. Рынок готов платить за окраску кожи и ремонт жидкой кожей — и конкуренты это уже используют. Ты теряешь до 30% возможной выручки каждый месяц.`;
+    rec = `<strong>💡 Рекомендация:</strong> Срочно добавь услуги окраски и жидкой кожи в прайс. Стоимость запуска — минимальна, а средний чек вырастет в 1.5–2 раза. Мы покажем как именно и с чего начать.`;
+  } else if (score >= 2) {
+    emoji = '📈';
+    title = 'Есть скрытые точки роста';
+    desc = `Ты на правильном пути, но пока не используешь весь потенциал. Часть клиентов уходит к конкурентам за услугами, которых у тебя нет. Это реальные деньги, которые можно вернуть.`;
+    rec = `<strong>💡 Рекомендация:</strong> Проведи анализ запросов своих клиентов. Скорее всего, услуги окраски кожи и жидкой кожи уже востребованы — просто ты об этом не знаешь. Мы поможем разобраться и составим план.`;
+  } else {
+    emoji = '🔍';
+    title = 'Хорошая точка для старта!';
+    desc = `Ты пока не чувствуешь острой необходимости, но рынок меняется быстро. Клиенты всё чаще ищут комплексные услуги по уходу за кожей. Те, кто добавит новые услуги сейчас — выиграют через 3–6 месяцев.`;
+    rec = `<strong>💡 Рекомендация:</strong> Даже если спрос пока не очевиден — стоит изучить нишу. Добавление 1–2 услуг может стать конкурентным преимуществом уже сейчас. Запросите бесплатную консультацию.`;
+  }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultScore').textContent = `${score} / 5`;
+  document.getElementById('resultDesc').textContent = desc;
+  document.getElementById('resultRec').innerHTML = rec;
+}
+
+function submitForm(e) {
+  e.preventDefault();
+  const name = document.getElementById('formName').value;
+  const contact = document.getElementById('formContact').value;
+  console.log('Заявка:', { name, contact, answers, score: answers.reduce((a,b)=>a+b,0) });
+
+  document.getElementById('screenResult').style.display = 'none';
+  document.getElementById('screenSuccess').style.display = 'block';
+  document.getElementById('progressWrap').classList.remove('visible');
+}
+</script>
+</body>
+</html>
