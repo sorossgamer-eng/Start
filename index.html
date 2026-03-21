@@ -1656,11 +1656,18 @@ a { text-decoration: none; color: inherit; }
 function toggleMenu() {
   const burger = document.getElementById('burger');
   const menu   = document.getElementById('mobileMenu');
-  const open   = menu.classList.toggle('open');
-  burger.classList.toggle('open', open);
-  menu.style.display = open ? 'block' : 'none';
-  if (open) { setTimeout(() => menu.classList.add('open'), 10); }
-  document.body.style.overflow = open ? 'hidden' : '';
+  const isOpen = menu.classList.contains('open');
+  if (!isOpen) {
+    menu.style.display = 'block';
+    setTimeout(() => menu.classList.add('open'), 10);
+    burger.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  } else {
+    menu.classList.remove('open');
+    burger.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => { menu.style.display = 'none'; }, 350);
+  }
 }
 function closeMenu() {
   const menu = document.getElementById('mobileMenu');
