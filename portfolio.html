@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Керимов Александр — Автоматизация бизнеса</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+  background: #f8fafc;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+img { display: block; max-width: 100%; }
+
+/* ===== ПЕРЕМЕННЫЕ ===== */
+:root {
+  --primary: #1e3a8a;
+  --primary-light: #2563eb;
+  --accent: #f59e0b;
+  --accent-dark: #d97706;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --bg: #f8fafc;
+  --bg-white: #ffffff;
+  --bg-section: #f1f5f9;
+  --border: #e2e8f0;
+  --shadow: 0 4px 24px rgba(30,58,138,0.08);
+  --shadow-hover: 0 8px 40px rgba(30,58,138,0.15);
+  --radius: 16px;
+}
+
+/* ===== ПРОГРЕСС-БАР ===== */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  z-index: 9999;
+  transition: width 0.1s;
+}
+
+/* ===== НАВИГАЦИЯ ===== */
+nav {
+  position: fixed;
+  top: 3px; left: 0; right: 0;
+  z-index: 1000;
+  background: rgba(248,250,252,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  transition: box-shadow 0.3s;
+}
+nav.scrolled { box-shadow: var(--shadow); }
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.nav-logo {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+}
+.nav-logo span { color: var(--accent); }
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+}
+.nav-menu a {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+.nav-menu a:hover { color: var(--primary); }
+.nav-cta {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff !important;
+  padding: 10px 22px;
+  border-radius: 100px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(30,58,138,0.3);
+}
+.nav-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30,58,138,0.4); color: #fff !important; }
+.nav-burger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+}
+.nav-burger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 2px;
+  transition: 0.3s;
+}
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 71px; left: 0; right: 0;
+  background: var(--bg-white);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 24px;
+  z-index: 999;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--shadow);
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.mobile-menu a:last-child { border-bottom: none; }
+
+/* ===== HERO ===== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 100px 24px 60px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #fefce8 50%, #f0f9ff 100%);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -80px; left: -80px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 480px;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.9);
+  border: 1.5px solid rgba(37,99,235,0.2);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 20px;
+}
+.hero-badge::before {
+  content: '';
+  width: 8px; height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.3); }
+}
+.hero h1 {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  color: var(--primary);
+  margin-bottom: 20px;
+}
+.hero h1 span {
+  background: linear-gradient(135deg, var(--accent), #ef4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-desc {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  line-height: 1.7;
+}
+.hero-sub {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 36px;
+  line-height: 1.7;
+}
+.hero-sub strong { color: var(--primary); font-weight: 600; }
+.hero-buttons {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 44px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(30,58,138,0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(30,58,138,0.4); }
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  padding: 14px 28px;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 2px solid var(--primary);
+  transition: background 0.2s, color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-outline:hover { background: var(--primary); color: #fff; }
+.hero-stats {
+  display: flex;
+  gap: 32px;
+}
+.hero-stat-num {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.hero-stat-num span { color: var(--accent); }
+.hero-stat-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+.hero-photo-wrap {
+  position: relative;
+}
+.hero-photo-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  opacity: 0.15;
+}
+.hero-photo-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: -16px; right: -16px;
+  width: 120px; height: 120px;
+  background: linear-gradient(135deg, var(--accent), #ef4444);
+  border-radius: 20px;
+  opacity: 0.12;
+}
+.hero-photo {
+  width: 100%;
+  border-radius: 24px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 20px 60px rgba(30,58,138,0.2);
+  object-fit: cover;
+  aspect-ratio: 1/1;
+}
+
+/* ===== СЕКЦИИ ===== */
+section { padding: 80px 24px; }
+.section-inner { max-width: 1200px; margin: 0 auto; }
+.section-label {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent-dark);
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  margin-bottom: 16px;
+}
+.section-desc {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  line-height: 1.7;
+}
+
+/* ===== УСЛУГИ ===== */
+.services { background: var(--bg-white); }
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 48px;
+}
+.service-card {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  cursor: default;
+}
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--primary-light);
+}
+.service-icon {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+}
+.service-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.service-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.service-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ===== ПОРТФОЛИО ===== */
+.portfolio { background: var(--bg-section); }
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 48px;
+}
+.portfolio-card {
+  background: var(--bg-white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.portfolio-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--primary-light);
+}
+.portfolio-thumb {
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  position: relative;
+}
+.portfolio-thumb-tag {
+  position: absolute;
+  top: 12px; left: 12px;
+  background: rgba(255,255,255,0.9);
+  color: var(--primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+.portfolio-thumb-link {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+.portfolio-thumb-link:hover { background: #fff; }
+.portfolio-body { padding: 20px; }
+.portfolio-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.portfolio-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.portfolio-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary-light);
+  transition: gap 0.2s;
+}
+.portfolio-link:hover { gap: 10px; }
+
+/* ===== ОБО МНЕ ===== */
+.about { background: var(--bg-white); }
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+  margin-top: 48px;
+}
+.about-text p {
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+.about-text p strong { color: var(--text); font-weight: 600; }
+.about-quote {
+  border-left: 4px solid var(--accent);
+  padding-left: 20px;
+  margin: 24px 0;
+}
+.about-quote p {
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--primary);
+  font-weight: 500;
+  margin: 0;
+}
+.about-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 32px;
+}
+.about-stat {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+}
+.about-stat-num {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.about-stat-num span { color: var(--accent); }
+.about-stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.stack-section { margin-top: 0; }
+.stack-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+.stack-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.stack-tag {
+  background: rgba(37,99,235,0.07);
+  border: 1px solid rgba(37,99,235,0.15);
+  color: var(--primary-light);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 100px;
+}
+.about-card {
+  background: var(--bg-section);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+.about-card + .about-card { margin-top: 20px; }
+.about-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+/* ===== ПРОЦЕСС ===== */
+.process { background: var(--bg-section); }
+.process-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-top: 48px;
+  position: relative;
+}
+.process-steps::before {
+  content: '';
+  position: absolute;
+  top: 28px; left: calc(12.5%);
+  right: calc(12.5%);
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  z-index: 0;
+}
+.process-step {
+  text-align: center;
+  padding: 0 16px;
+  position: relative;
+  z-index: 1;
+}
+.process-step-num {
+  width: 56px; height: 56px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0 auto 20px;
+  box-shadow: 0 4px 14px rgba(30,58,138,0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.process-step:hover .process-step-num {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(30,58,138,0.4);
+}
+.process-step-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(245,158,11,0.12);
+  color: var(--accent-dark);
+  padding: 3px 10px;
+  border-radius: 100px;
+  margin-bottom: 10px;
+}
+.process-step-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.process-step-desc {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ===== CTA BANNER ===== */
+.cta-banner {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 60%, #0ea5e9 100%);
+  padding: 72px 24px;
+}
+.cta-banner-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+}
+.cta-banner h2 {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+.cta-banner p {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 36px;
+  line-height: 1.7;
+}
+.cta-banner-buttons {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn-white {
+  background: #fff;
+  color: var(--primary);
+  padding: 14px 28px;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-white:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+.btn-ghost {
+  background: transparent;
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 2px solid rgba(255,255,255,0.5);
+  transition: border-color 0.2s, background 0.2s;
+}
+.btn-ghost:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
+
+/* ===== КОНТАКТЫ ===== */
+.contact { background: var(--bg-white); }
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  margin-top: 48px;
+  align-items: start;
+}
+.contact-info-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.contact-info-desc {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+.contact-tg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #0088cc;
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(0,136,204,0.3);
+  margin-bottom: 16px;
+}
+.contact-tg-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(0,136,204,0.4); }
+.contact-phone {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 12px;
+}
+.contact-hint {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.contact-hint::before {
+  content: '';
+  width: 8px; height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.contact-form {
+  background: var(--bg-section);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+}
+.form-group { margin-bottom: 18px; }
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-white);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: var(--text);
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+.form-group textarea { resize: vertical; min-height: 110px; }
+.form-submit {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  padding: 14px;
+  border-radius: 100px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(30,58,138,0.3);
+}
+.form-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(30,58,138,0.4); }
+.form-success {
+  display: none;
+  text-align: center;
+  padding: 24px 0 8px;
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  background: var(--primary);
+  color: rgba(255,255,255,0.7);
+  padding: 40px 24px 24px;
+}
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.footer-logo {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
+}
+.footer-logo span { color: var(--accent); }
+.footer-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+}
+.footer-links a {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.65);
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: #fff; }
+.footer-socials {
+  display: flex;
+  gap: 12px;
+}
+.footer-social {
+  width: 38px; height: 38px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #fff;
+  transition: background 0.2s;
+}
+.footer-social:hover { background: rgba(255,255,255,0.2); }
+.footer-bottom {
+  padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-copy { font-size: 0.82rem; }
+.footer-made { font-size: 0.82rem; color: rgba(255,255,255,0.5); }
+
+/* ===== КНОПКА ВВЕРХ ===== */
+#scroll-top {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  width: 46px; height: 46px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  border: none;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s, transform 0.3s, background 0.2s;
+  box-shadow: 0 4px 16px rgba(30,58,138,0.3);
+  z-index: 999;
+}
+#scroll-top.visible { opacity: 1; transform: translateY(0); }
+#scroll-top:hover { background: var(--primary-light); }
+
+/* ===== АДАПТИВНОСТЬ ===== */
+@media (max-width: 1024px) {
+  .services-grid { grid-template-columns: repeat(2, 1fr); }
+  .portfolio-grid { grid-template-columns: repeat(2, 1fr); }
+  .process-steps { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+  .process-steps::before { display: none; }
+}
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+  .hero-photo-wrap { max-width: 380px; margin: 0 auto; }
+  .about-grid { grid-template-columns: 1fr; }
+  .contact-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  section { padding: 60px 20px; }
+  .nav-menu { display: none; }
+  .nav-cta { display: none; }
+  .nav-burger { display: flex; }
+  .hero { padding: 90px 20px 50px; }
+  .hero-stats { gap: 20px; flex-wrap: wrap; }
+  .services-grid { grid-template-columns: 1fr; }
+  .portfolio-grid { grid-template-columns: 1fr; }
+  .process-steps { grid-template-columns: 1fr; }
+  .footer-top { flex-direction: column; align-items: flex-start; }
+  .footer-links { flex-wrap: wrap; gap: 16px; }
+  .footer-bottom { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 480px) {
+  .hero-buttons { flex-direction: column; }
+  .btn-primary, .btn-outline { width: 100%; justify-content: center; }
+  .cta-banner-buttons { flex-direction: column; }
+  .btn-white, .btn-ghost { width: 100%; justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- НАВИГАЦИЯ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a class="nav-logo" href="#">Керимов <span>Александр</span></a>
+    <ul class="nav-menu">
+      <li><a href="#services">Услуги</a></li>
+      <li><a href="#portfolio">Портфолио</a></li>
+      <li><a href="#about">Обо мне</a></li>
+      <li><a href="#contact">Контакты</a></li>
+    </ul>
+    <a href="https://t.me/adisonSLV" target="_blank" class="nav-menu nav-cta">Обсудить проект</a>
+    <button class="nav-burger" id="burger" aria-label="Меню">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- МОБИЛЬНОЕ МЕНЮ -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#services" onclick="closeMobile()">Услуги</a>
+  <a href="#portfolio" onclick="closeMobile()">Портфолио</a>
+  <a href="#about" onclick="closeMobile()">Обо мне</a>
+  <a href="#contact" onclick="closeMobile()">Контакты</a>
+  <a href="https://t.me/adisonSLV" target="_blank" style="color:#1e3a8a;font-weight:700;">Написать в Telegram</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge">Открыт для новых проектов</div>
+      <h1>Решения для <span>автоматизации</span> вашего бизнеса</h1>
+      <p class="hero-desc">Бизнес-консультант, помогаю в оптимизации бизнес-процессов средствами, облегчающими ведение бизнеса.</p>
+      <p class="hero-sub">
+        Создаю <strong>лендинги, визитки, квизы, боты-помощники, калькуляторы и CRM</strong> — инструменты, которые работают на ваш бизнес 24/7.
+      </p>
+      <div class="hero-buttons">
+        <a href="#contact" class="btn-primary">Обсудить проект &#8594;</a>
+        <a href="#portfolio" class="btn-outline">Посмотреть работы</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num">5<span>+</span></div>
+          <div class="hero-stat-label">Готовых проектов</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">6</div>
+          <div class="hero-stat-label">Форматов решений</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">24<span>/7</span></div>
+          <div class="hero-stat-label">Работают инструменты</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-photo-wrap">
+      <img src="photo.jpg" alt="Керимов Александр" class="hero-photo">
+    </div>
+  </div>
+</section>
+
+<!-- УСЛУГИ -->
+<section class="services" id="services">
+  <div class="section-inner">
+    <div class="section-label">Что я делаю</div>
+    <h2 class="section-title">Усилители вашего бизнеса</h2>
+    <p class="section-desc">Каждый инструмент решает конкретную задачу и помогает вашему бизнесу работать эффективнее.</p>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon" style="background:#eff6ff;">&#127760;</div>
+        <div class="service-tag">Веб</div>
+        <div class="service-name">Лендинг</div>
+        <div class="service-desc">Продающая одностраничная страница для привлечения клиентов и презентации продукта или услуги.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon" style="background:#fefce8;">&#128196;</div>
+        <div class="service-tag">Веб</div>
+        <div class="service-name">Визитка</div>
+        <div class="service-desc">Онлайн-представление: кто вы, чем занимаетесь, как с вами связаться. Ваша цифровая визитная карточка.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon" style="background:#f0fdf4;">&#10067;</div>
+        <div class="service-tag">Маркетинг</div>
+        <div class="service-name">Квиз</div>
+        <div class="service-desc">Интерактивный опрос для квалификации клиентов, сбора заявок и сегментации аудитории.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon" style="background:#fdf4ff;">&#129302;</div>
+        <div class="service-tag">Автоматизация</div>
+        <div class="service-name">Бот-помощник</div>
+        <div class="service-desc">Автоматический консультант, который отвечает на вопросы клиентов и обрабатывает заявки без вашего участия.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon" style="background:#fff7ed;">&#128200;</div>
+        <div class="service-tag">Инструмент</div>
+        <div class="service-name">Калькулятор</div>
+        <div class="service-desc">Онлайн-расчёт стоимости услуг или продуктов. Помогает клиенту сразу понять бюджет и принять решение.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon" style="background:#f0f9ff;">&#128202;</div>
+        <div class="service-tag">Управление</div>
+        <div class="service-name">CRM-система</div>
+        <div class="service-desc">Система управления клиентами и сделками. Вся база в одном месте, история взаимодействий и воронка продаж.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ПОРТФОЛИО -->
+<section class="portfolio" id="portfolio">
+  <div class="section-inner">
+    <div class="section-label">Мои работы</div>
+    <h2 class="section-title">Портфолио проектов</h2>
+    <p class="section-desc">Реальные проекты, которые уже работают и решают задачи бизнеса.</p>
+    <div class="portfolio-grid">
+      <div class="portfolio-card">
+        <div class="portfolio-thumb" style="background:linear-gradient(135deg,#1e3a8a,#2563eb);">
+          &#127968;
+          <div class="portfolio-thumb-tag">Лендинг</div>
+          <a class="portfolio-thumb-link" href="https://sorossgamer-eng.github.io/Start/" target="_blank">&#8599;</a>
+        </div>
+        <div class="portfolio-body">
+          <div class="portfolio-title">Лендинг — Ремонт квартир</div>
+          <div class="portfolio-desc">Продающий лендинг для компании по ремонту. Портфолио работ, калькулятор стоимости, форма заявки.</div>
+          <a class="portfolio-link" href="https://sorossgamer-eng.github.io/Start/" target="_blank">Открыть проект &#8594;</a>
+        </div>
+      </div>
+      <div class="portfolio-card">
+        <div class="portfolio-thumb" style="background:linear-gradient(135deg,#0f766e,#0d9488);">
+          &#128196;
+          <div class="portfolio-thumb-tag">Визитка</div>
+          <a class="portfolio-thumb-link" href="https://sorossgamer-eng.github.io/Start/vizitka.html" target="_blank">&#8599;</a>
+        </div>
+        <div class="portfolio-body">
+          <div class="portfolio-title">Онлайн-визитка</div>
+          <div class="portfolio-desc">Цифровая визитная карточка с контактами, ссылками на соцсети и кнопкой для связи в Telegram.</div>
+          <a class="portfolio-link" href="https://sorossgamer-eng.github.io/Start/vizitka.html" target="_blank">Открыть проект &#8594;</a>
+        </div>
+      </div>
+      <div class="portfolio-card">
+        <div class="portfolio-thumb" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">
+          &#10067;
+          <div class="portfolio-thumb-tag">Квиз</div>
+          <a class="portfolio-thumb-link" href="https://sorossgamer-eng.github.io/Start/quiz.html" target="_blank">&#8599;</a>
+        </div>
+        <div class="portfolio-body">
+          <div class="portfolio-title">Интерактивный квиз</div>
+          <div class="portfolio-desc">Опрос для квалификации клиентов с логикой ветвления, прогресс-баром и финальным результатом.</div>
+          <a class="portfolio-link" href="https://sorossgamer-eng.github.io/Start/quiz.html" target="_blank">Открыть проект &#8594;</a>
+        </div>
+      </div>
+      <div class="portfolio-card">
+        <div class="portfolio-thumb" style="background:linear-gradient(135deg,#d97706,#f59e0b);">
+          &#128200;
+          <div class="portfolio-thumb-tag">Калькулятор</div>
+          <a class="portfolio-thumb-link" href="https://sorossgamer-eng.github.io/Start/calculator.html" target="_blank">&#8599;</a>
+        </div>
+        <div class="portfolio-body">
+          <div class="portfolio-title">Онлайн-калькулятор</div>
+          <div class="portfolio-desc">Интерактивный калькулятор стоимости услуг. Клиент сразу видит цену и принимает решение быстрее.</div>
+          <a class="portfolio-link" href="https://sorossgamer-eng.github.io/Start/calculator.html" target="_blank">Открыть проект &#8594;</a>
+        </div>
+      </div>
+      <div class="portfolio-card">
+        <div class="portfolio-thumb" style="background:linear-gradient(135deg,#0f172a,#1e40af);">
+          &#128202;
+          <div class="portfolio-thumb-tag">CRM</div>
+          <a class="portfolio-thumb-link" href="https://sorossgamer-eng.github.io/Start/crm.html" target="_blank">&#8599;</a>
+        </div>
+        <div class="portfolio-body">
+          <div class="portfolio-title">CRM-система</div>
+          <div class="portfolio-desc">Система управления клиентами и сделками. Воронка продаж, карточки клиентов, история взаимодействий.</div>
+          <a class="portfolio-link" href="https://sorossgamer-eng.github.io/Start/crm.html" target="_blank">Открыть проект &#8594;</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ОБО МНЕ -->
+<section class="about" id="about">
+  <div class="section-inner">
+    <div class="section-label">Обо мне</div>
+    <h2 class="section-title">Керимов Александр</h2>
+    <div class="about-grid">
+      <div class="about-text">
+        <p><strong>Бизнес-консультант</strong> с практическим опытом в оптимизации бизнес-процессов. Помогаю предпринимателям и экспертам внедрять цифровые инструменты, которые реально экономят время и увеличивают доход.</p>
+        <p>Специализируюсь на вайб-кодинге — создании готовых веб-инструментов без лишних сложностей: быстро, понятно, по делу.</p>
+        <div class="about-quote">
+          <p>Каждый инструмент, который я создаю — это не просто сайт, это механизм, который работает на ваш бизнес пока вы занимаетесь главным.</p>
+        </div>
+        <p>Если у вас есть задача — я найду для неё цифровое решение.</p>
+        <div class="about-stats">
+          <div class="about-stat">
+            <div class="about-stat-num">5<span>+</span></div>
+            <div class="about-stat-label">Готовых проектов</div>
+          </div>
+          <div class="about-stat">
+            <div class="about-stat-num">6</div>
+            <div class="about-stat-label">Типов инструментов</div>
+          </div>
+          <div class="about-stat">
+            <div class="about-stat-num">100<span>%</span></div>
+            <div class="about-stat-label">Адаптивный дизайн</div>
+          </div>
+          <div class="about-stat">
+            <div class="about-stat-num">24<span>/7</span></div>
+            <div class="about-stat-label">Работа инструментов</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="about-card">
+          <div class="about-card-title">Стек технологий</div>
+          <div class="stack-tags">
+            <span class="stack-tag">HTML / CSS</span>
+            <span class="stack-tag">JavaScript</span>
+            <span class="stack-tag">Адаптивный дизайн</span>
+            <span class="stack-tag">GitHub Pages</span>
+            <span class="stack-tag">Telegram Bot</span>
+            <span class="stack-tag">CRM</span>
+            <span class="stack-tag">Вайб-кодинг</span>
+            <span class="stack-tag">AI-инструменты</span>
+          </div>
+        </div>
+        <div class="about-card" style="margin-top:20px;">
+          <div class="about-card-title">Что получает клиент</div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <span style="color:#22c55e;font-size:1.1rem;flex-shrink:0;">&#10003;</span>
+              <span style="font-size:0.9rem;color:#64748b;">Готовый инструмент, работающий на реальном хостинге</span>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <span style="color:#22c55e;font-size:1.1rem;flex-shrink:0;">&#10003;</span>
+              <span style="font-size:0.9rem;color:#64748b;">Адаптивный дизайн — корректно на любом устройстве</span>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <span style="color:#22c55e;font-size:1.1rem;flex-shrink:0;">&#10003;</span>
+              <span style="font-size:0.9rem;color:#64748b;">Понятное управление без технических знаний</span>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <span style="color:#22c55e;font-size:1.1rem;flex-shrink:0;">&#10003;</span>
+              <span style="font-size:0.9rem;color:#64748b;">Быстрый результат и поддержка после запуска</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ПРОЦЕСС -->
+<section class="process" id="process">
+  <div class="section-inner">
+    <div class="section-label">Как я работаю</div>
+    <h2 class="section-title">Мой подход к созданию решений</h2>
+    <p class="section-desc">Чёткий процесс — предсказуемый результат. Без неожиданностей.</p>
+    <div class="process-steps">
+      <div class="process-step">
+        <div class="process-step-num">1</div>
+        <div class="process-step-badge">День 1</div>
+        <div class="process-step-name">Разбор задачи</div>
+        <div class="process-step-desc">Обсуждаем цели, аудиторию и ожидаемый результат. Определяем подходящий формат решения.</div>
+      </div>
+      <div class="process-step">
+        <div class="process-step-num">2</div>
+        <div class="process-step-badge">День 1-2</div>
+        <div class="process-step-name">Прототип</div>
+        <div class="process-step-desc">Создаю структуру и базовый дизайн. Вы видите результат до финальной версии и вносите правки.</div>
+      </div>
+      <div class="process-step">
+        <div class="process-step-num">3</div>
+        <div class="process-step-badge">День 2-5</div>
+        <div class="process-step-name">Разработка</div>
+        <div class="process-step-desc">Верстаю полноценный продукт с учётом всех правок. Адаптив, интерактивность, финальный дизайн.</div>
+      </div>
+      <div class="process-step">
+        <div class="process-step-num">4</div>
+        <div class="process-step-badge">День 5-7</div>
+        <div class="process-step-name">Запуск</div>
+        <div class="process-step-desc">Размещаю на хостинге, проверяю работу на всех устройствах. Передаю вам с инструкцией.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<div class="cta-banner">
+  <div class="cta-banner-inner">
+    <h2>Есть идея? Давайте превратим её в рабочий инструмент</h2>
+    <p>Напишите в Telegram — обсудим задачу и я предложу оптимальное решение. Без лишних слов, сразу по делу.</p>
+    <div class="cta-banner-buttons">
+      <a href="https://t.me/adisonSLV" target="_blank" class="btn-white">Написать в Telegram &#8594;</a>
+      <a href="#portfolio" class="btn-ghost">Посмотреть работы</a>
+    </div>
+  </div>
+</div>
+
+<!-- КОНТАКТЫ -->
+<section class="contact" id="contact">
+  <div class="section-inner">
+    <div class="section-label">Связь</div>
+    <h2 class="section-title">Начать проект</h2>
+    <p class="section-desc">Напишите мне удобным способом — обсудим вашу задачу и найдём решение.</p>
+    <div class="contact-grid">
+      <div>
+        <div class="contact-info-title">Написать напрямую</div>
+        <div class="contact-info-desc">Самый быстрый способ — написать в Telegram. Отвечаю в течение нескольких часов.</div>
+        <a href="https://t.me/adisonSLV" target="_blank" class="contact-tg-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.17 13.617l-2.956-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.974.942z"/></svg>
+          Написать @adisonSLV
+        </a>
+        <div class="contact-phone">
+          <span>&#128222;</span>
+          <a href="tel:+79494508274">+7 (949) 450-82-74</a>
+        </div>
+        <div class="contact-hint">Отвечаю в рабочее время, обычно в тот же день</div>
+      </div>
+      <div class="contact-form">
+        <form id="contact-form" onsubmit="submitForm(event)">
+          <div class="form-group">
+            <label for="name">Ваше имя</label>
+            <input type="text" id="name" placeholder="Как вас зовут?" required>
+          </div>
+          <div class="form-group">
+            <label for="contact">Telegram или телефон</label>
+            <input type="text" id="contact" placeholder="@username или +7..." required>
+          </div>
+          <div class="form-group">
+            <label for="task">Ваша задача</label>
+            <textarea id="task" placeholder="Опишите, что хотите создать или улучшить..." required></textarea>
+          </div>
+          <button type="submit" class="form-submit">Отправить заявку &#8594;</button>
+          <div class="form-success" id="form-success">&#10003; Спасибо! Я свяжусь с вами в ближайшее время.</div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-logo">Керимов <span>Александр</span></div>
+      <ul class="footer-links">
+        <li><a href="#services">Услуги</a></li>
+        <li><a href="#portfolio">Портфолио</a></li>
+        <li><a href="#about">Обо мне</a></li>
+        <li><a href="#contact">Контакты</a></li>
+      </ul>
+      <div class="footer-socials">
+        <a href="https://t.me/adisonSLV" target="_blank" class="footer-social">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.17 13.617l-2.956-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.974.942z"/></svg>
+        </a>
+        <a href="https://github.com/sorossgamer-eng/Start" target="_blank" class="footer-social">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+        <a href="tel:+79494508274" class="footer-social">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Керимов Александр. Все права защищены.</div>
+      <div class="footer-made">Автоматизация вашего бизнеса</div>
+    </div>
+  </div>
+</footer>
+
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Наверх">&#8593;</button>
+
+<script>
+// Прогресс-бар
+window.addEventListener('scroll', () => {
+  const scroll = window.scrollY;
+  const height = document.documentElement.scrollHeight - window.innerHeight;
+  document.getElementById('progress-bar').style.width = (scroll / height * 100) + '%';
+
+  // Навбар
+  document.getElementById('navbar').classList.toggle('scrolled', scroll > 20);
+
+  // Кнопка наверх
+  document.getElementById('scroll-top').classList.toggle('visible', scroll > 500);
+});
+
+// Мобильное меню
+document.getElementById('burger').addEventListener('click', () => {
+  document.getElementById('mobile-menu').classList.toggle('open');
+});
+function closeMobile() {
+  document.getElementById('mobile-menu').classList.remove('open');
+}
+
+// Форма
+function submitForm(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('.form-submit');
+  btn.textContent = 'Отправляю...';
+  btn.disabled = true;
+  setTimeout(() => {
+    e.target.querySelector('.form-success').style.display = 'block';
+    btn.style.display = 'none';
+  }, 800);
+}
+
+// Плавное скролл к якорям (закрывает меню)
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', () => {
+    document.getElementById('mobile-menu').classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>
