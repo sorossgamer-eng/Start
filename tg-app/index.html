@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<!-- Отключаем масштабирование — приложение, не сайт -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<title>РемонтПро — Калькулятор ремонта</title>
+
+<!-- Telegram Web App SDK — подключается ПЕРВЫМ скриптом, иначе не работает -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+/* ============================================================
+   СБРОС И CSS-ПЕРЕМЕННЫЕ
+   Цвета берём из темы Telegram — автоматически меняются
+   при переключении светлой/тёмной темы у пользователя
+============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  /* Убираем синюю подсветку при тапе на мобилах */
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  /* Основные цвета — из темы Telegram */
+  --bg:           var(--tg-theme-bg-color, #ffffff);
+  --bg2:          var(--tg-theme-secondary-bg-color, #f1f1f1);
+  --text:         var(--tg-theme-text-color, #000000);
+  --hint:         var(--tg-theme-hint-color, #8e8e93);
+  --link:         var(--tg-theme-link-color, #2481cc);
+  --accent:       var(--tg-theme-button-color, #2AABEE);
+  --accent-text:  var(--tg-theme-button-text-color, #ffffff);
+
+  /* Доп. переменные для компонентов */
+  --border:       rgba(0,0,0,0.08);
+  --shadow:       0 2px 16px rgba(0,0,0,0.07);
+  --radius:       14px;
+  --radius-sm:    10px;
+
+  /* Шрифт — системный, как в Telegram */
+  --font: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg2);
+  overflow: hidden;
+  /* Запрещаем перетаскивание страницы */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================================
+   КОНТЕЙНЕР ПРИЛОЖЕНИЯ
+============================================================ */
+#app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* ============================================================
+   ЭКРАНЫ
+   Все скрыты по умолчанию (display:none).
+   JS управляет видимостью и анимацией.
+============================================================ */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;          /* JS переключает на flex при навигации */
+  flex-direction: column;
+  background: var(--bg2);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transform: translateX(100%);
+}
+
+/* Первый экран — сразу виден без анимации */
+.screen.visible-init {
+  display: flex;
+  transform: translateX(0);
+}
+
+/* ============================================================
+   ОБЩИЕ КОМПОНЕНТЫ
+============================================================ */
+
+/* --- Шапка экрана --- */
+.screen-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 12px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.screen-title {
+  font-size: 17px;
+  font-weight: 600;
+  flex: 1;
+}
+
+/* --- Кнопка "Назад" --- */
+.back-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: var(--bg2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.back-btn:active { background: rgba(0,0,0,0.08); }
+
+/* --- Прогресс-шаги (точки) --- */
+.progress-dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: all 0.25s;
+}
+.dot.done  { background: var(--accent); }
+.dot.active {
+  background: var(--accent);
+  width: 18px;
+  border-radius: 3px;
+}
+
+/* --- Тело экрана (с отступами) --- */
+.screen-body {
+  flex: 1;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* --- Подсказка над контентом --- */
+.screen-hint {
+  font-size: 13px;
+  color: var(--hint);
+  padding: 0 2px;
+}
+
+/* --- Белая карточка --- */
+.card {
+  background: var(--bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* --- Подпись-заголовок раздела (маленькими буквами) --- */
+.section-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--hint);
+  padding: 0 2px;
+  margin-bottom: -4px;
+}
+
+/* --- Нижняя панель с кнопкой --- */
+.screen-footer {
+  padding: 12px 16px;
+  /* Отступ для iPhone с "ушками" */
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* --- Главная кнопка (синяя, во всю ширину) --- */
+.btn-main {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 20px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 16px;
+  font-weight: 600;
+  font-family: var(--font);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-main:active   { opacity: 0.82; transform: scale(0.98); }
+.btn-main:disabled { opacity: 0.38; cursor: default; }
+
+/* --- Вторичная кнопка (текстовая) --- */
+.btn-ghost {
+  width: 100%;
+  min-height: 44px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 500;
+  font-family: var(--font);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-ghost:active { background: rgba(0,0,0,0.05); }
+
+/* ============================================================
+   ЭКРАН 1: ПРИВЕТСТВИЕ (screen-welcome)
+============================================================ */
+#screen-welcome {
+  background: var(--bg);
+}
+
+/* Цветная шапка с логотипом */
+.welcome-hero {
+  background: linear-gradient(160deg, #1a7bbf 0%, var(--accent) 60%, #47c8f5 100%);
+  padding: 36px 24px 28px;
+  text-align: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+.welcome-logo-icon {
+  width: 68px;
+  height: 68px;
+  background: rgba(255,255,255,0.22);
+  border-radius: 20px;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+.welcome-name {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+.welcome-sub {
+  font-size: 14px;
+  opacity: 0.85;
+  margin-bottom: 18px;
+}
+.welcome-pills {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.pill {
+  background: rgba(255,255,255,0.22);
+  border-radius: 100px;
+  padding: 5px 13px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Список преимуществ */
+.features-list {
+  display: flex;
+  flex-direction: column;
+}
+.feature-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.feature-row:last-child { border-bottom: none; }
+.feature-ico {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(42,171,238,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.feature-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 1px;
+}
+.feature-desc {
+  font-size: 13px;
+  color: var(--hint);
+}
+
+/* ============================================================
+   ЭКРАН 2: ТИП РЕМОНТА (screen-type)
+============================================================ */
+.repair-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.repair-card {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 14px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.12s, transform 0.1s;
+}
+.repair-card:active { transform: scale(0.98); }
+.repair-card.selected {
+  border-color: var(--accent);
+  background: rgba(42,171,238,0.05);
+}
+.repair-ico {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.repair-name {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.repair-price {
+  font-size: 13px;
+  color: var(--hint);
+}
+.repair-popular {
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--accent);
+  color: var(--accent-text);
+  padding: 3px 9px;
+  border-radius: 100px;
+  flex-shrink: 0;
+}
+.repair-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.repair-card.selected .repair-check {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.repair-check-dot {
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.repair-card.selected .repair-check-dot { opacity: 1; }
+
+/* ============================================================
+   ЭКРАН 3: ПАРАМЕТРЫ (screen-params)
+============================================================ */
+
+/* Блок ввода площади */
+.area-input-card {
+  background: var(--bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px 16px 16px;
+}
+.area-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--hint);
+  margin-bottom: 6px;
+}
+.area-input-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.area-input {
+  flex: 1;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font);
+  width: 100%;
+  min-width: 0;
+}
+.area-input::placeholder { color: rgba(0,0,0,0.15); }
+.area-unit {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--hint);
+}
+
+/* Выбор города */
+.city-grid {
+  display: flex;
+  gap: 8px;
+}
+.city-btn {
+  flex: 1;
+  min-height: 46px;
+  background: var(--bg);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  font-family: var(--font);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  transition: all 0.15s;
+}
+.city-btn:active { transform: scale(0.97); }
+.city-btn.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(42,171,238,0.06);
+}
+.city-coeff {
+  font-size: 11px;
+  color: var(--hint);
+  font-weight: 400;
+}
+.city-btn.selected .city-coeff { color: rgba(42,171,238,0.7); }
+
+/* Инфо о выбранном типе */
+.selected-type-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.chip-ico { font-size: 22px; }
+.chip-label { font-size: 12px; color: var(--hint); }
+.chip-name  { font-size: 14px; font-weight: 600; }
+
+/* ============================================================
+   ЭКРАН 4: РЕЗУЛЬТАТ (screen-result)
+============================================================ */
+
+/* Карточка с итоговой суммой */
+.result-card {
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  text-align: center;
+  background: linear-gradient(135deg, #1a7bbf, var(--accent));
+  color: #fff;
+}
+.result-label {
+  font-size: 13px;
+  opacity: 0.82;
+  margin-bottom: 6px;
+}
+.result-total {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 6px;
+  transition: all 0.1s;
+}
+.result-meta {
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+/* Разбивка стоимости */
+.breakdown {
+  background: var(--bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.breakdown-header {
+  padding: 11px 14px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--hint);
+  border-bottom: 1px solid var(--border);
+}
+.breakdown-row {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.breakdown-row:last-child { border-bottom: none; }
+.breakdown-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 7px;
+  font-size: 14px;
+}
+.breakdown-name { font-weight: 500; }
+.breakdown-val  { font-weight: 700; }
+.bar-bg {
+  height: 5px;
+  background: var(--bg2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  width: 0;
+  transition: width 0.7s cubic-bezier(0.4,0,0.2,1) 0.15s;
+}
+
+/* Дисклеймер */
+.disclaimer {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 11px 14px;
+  font-size: 13px;
+  color: var(--hint);
+  line-height: 1.5;
+  border-left: 3px solid var(--accent);
+  box-shadow: var(--shadow);
+}
+
+/* ============================================================
+   ЭКРАН 5: ФОРМА ЗАЯВКИ (screen-form)
+============================================================ */
+
+/* Список полей формы */
+.form-list {
+  background: var(--bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.form-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--border);
+  min-height: 58px;
+}
+.form-field:last-child { border-bottom: none; }
+.field-ico {
+  width: 32px;
+  height: 32px;
+  background: rgba(42,171,238,0.1);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.field-inner { flex: 1; padding: 10px 0; }
+.field-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--hint);
+  margin-bottom: 2px;
+}
+.field-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  font-family: var(--font);
+  padding: 0;
+}
+.field-input::placeholder { color: var(--hint); font-weight: 400; }
+
+/* Выбор времени */
+.time-grid {
+  display: flex;
+  gap: 8px;
+}
+.time-btn {
+  flex: 1;
+  min-height: 46px;
+  background: var(--bg);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all 0.15s;
+}
+.time-btn.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(42,171,238,0.06);
+}
+.time-btn:active { transform: scale(0.97); }
+
+.form-note {
+  font-size: 13px;
+  color: var(--hint);
+  text-align: center;
+  padding: 0 8px;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   ЭКРАН 6: УСПЕХ (screen-success)
+============================================================ */
+#screen-success {
+  background: var(--bg);
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 40px;
+}
+#screen-success .screen-body {
+  align-items: center;
+  text-align: center;
+}
+.success-circle {
+  width: 90px;
+  height: 90px;
+  background: #4CAF50;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  animation: pop-in 0.45s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes pop-in {
+  0%  { transform: scale(0); opacity: 0; }
+  100%{ transform: scale(1); opacity: 1; }
+}
+.success-check {
+  stroke: #fff;
+  stroke-width: 3;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: draw 0.45s ease 0.35s forwards;
+}
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.success-title {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+.success-sub {
+  font-size: 15px;
+  color: var(--hint);
+  line-height: 1.55;
+  max-width: 280px;
+}
+
+/* Карточка-резюме заявки */
+.summary-card {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 4px 14px;
+  width: 100%;
+  text-align: left;
+}
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-key   { color: var(--hint); }
+.summary-val   { font-weight: 600; }
+
+/* ============================================================
+   ЭКРАН 7: ПОРТФОЛИО (screen-portfolio)
+============================================================ */
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.portfolio-card {
+  background: var(--bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s;
+}
+.portfolio-card:active { transform: scale(0.96); }
+.portfolio-thumb {
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+}
+.portfolio-body {
+  padding: 10px 11px 12px;
+}
+.portfolio-name {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+.portfolio-meta {
+  font-size: 12px;
+  color: var(--hint);
+}
+
+/* ============================================================
+   BOTTOM SHEET — модальный листок снизу для деталей проекта
+============================================================ */
+.bs-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.42);
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+.bs-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+.bottom-sheet {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--bg);
+  border-radius: 20px 20px 0 0;
+  padding: 0 18px 20px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 101;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.bottom-sheet.open { transform: translateY(0); }
+.bs-handle {
+  width: 38px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 12px auto 16px;
+}
+.bs-title {
+  font-size: 19px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.bs-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.bs-row:last-of-type { border-bottom: none; }
+.bs-key  { color: var(--hint); }
+.bs-val  { font-weight: 600; }
+.bs-desc {
+  font-size: 14px;
+  color: var(--hint);
+  line-height: 1.6;
+  margin: 6px 0 18px;
+}
+
+/* ============================================================
+   АНИМАЦИИ — пошаговое появление элементов
+============================================================ */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+.anim { opacity: 0; animation: fade-up 0.3s ease forwards; }
+.anim-1 { animation-delay: 0.04s; }
+.anim-2 { animation-delay: 0.09s; }
+.anim-3 { animation-delay: 0.14s; }
+.anim-4 { animation-delay: 0.19s; }
+.anim-5 { animation-delay: 0.24s; }
+
+/* ============================================================
+   SHAKE-АНИМАЦИЯ для ошибок в форме
+============================================================ */
+@keyframes shake {
+  0%,100%{ transform: translateX(0);  }
+  20%    { transform: translateX(-6px);}
+  40%    { transform: translateX( 6px);}
+  60%    { transform: translateX(-4px);}
+  80%    { transform: translateX( 3px);}
+}
+.shake { animation: shake 0.4s ease; }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ============================================================
+     ЭКРАН 1: ПРИВЕТСТВИЕ
+============================================================ -->
+<div class="screen visible-init" id="screen-welcome">
+  <div class="welcome-hero">
+    <div class="welcome-logo-icon">🏠</div>
+    <div class="welcome-name">РемонтПро</div>
+    <div class="welcome-sub">Ремонт квартир под ключ в Москве</div>
+    <div class="welcome-pills">
+      <span class="pill">Гарантия 3 года</span>
+      <span class="pill">Договор</span>
+      <span class="pill">Фотоотчёты</span>
+    </div>
+  </div>
+
+  <div class="features-list" style="flex:1;">
+    <div class="feature-row anim anim-1">
+      <div class="feature-ico">📋</div>
+      <div>
+        <div class="feature-title">Фиксированная цена</div>
+        <div class="feature-desc">Цена в договоре не изменится</div>
+      </div>
+    </div>
+    <div class="feature-row anim anim-2">
+      <div class="feature-ico">📸</div>
+      <div>
+        <div class="feature-title">Фотоотчёты каждый день</div>
+        <div class="feature-desc">В WhatsApp каждый вечер</div>
+      </div>
+    </div>
+    <div class="feature-row anim anim-3">
+      <div class="feature-ico">🛡️</div>
+      <div>
+        <div class="feature-title">Гарантия 3 года</div>
+        <div class="feature-desc">Устраним бесплатно — прописано в договоре</div>
+      </div>
+    </div>
+    <div class="feature-row anim anim-4">
+      <div class="feature-ico">⏱️</div>
+      <div>
+        <div class="feature-title">Штраф за просрочку</div>
+        <div class="feature-desc">1% от стоимости за каждый день задержки</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen-footer">
+    <button class="btn-main" id="btn-welcome">Рассчитать стоимость</button>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     ЭКРАН 2: ТИП РЕМОНТА
+============================================================ -->
+<div class="screen" id="screen-type">
+  <div class="screen-header">
+    <button class="back-btn" onclick="goBack()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <span class="screen-title">Тип ремонта</span>
+    <div class="progress-dots">
+      <div class="dot active" id="type-d1"></div>
+      <div class="dot" id="type-d2"></div>
+      <div class="dot" id="type-d3"></div>
+    </div>
+  </div>
+
+  <div class="screen-body">
+    <div class="screen-hint">Шаг 1 из 3 — выберите подходящий вариант</div>
+    <div class="repair-list" id="repair-list">
+      <!-- Заполняется из JS через renderRepairTypes() -->
+    </div>
+  </div>
+
+  <div class="screen-footer">
+    <button class="btn-main" id="btn-type-next" disabled>Далее</button>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     ЭКРАН 3: ПАРАМЕТРЫ КВАРТИРЫ
+============================================================ -->
+<div class="screen" id="screen-params">
+  <div class="screen-header">
+    <button class="back-btn" onclick="goBack()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <span class="screen-title">Параметры</span>
+    <div class="progress-dots">
+      <div class="dot done"></div>
+      <div class="dot active"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <div class="screen-body">
+    <div class="screen-hint">Шаг 2 из 3 — укажите параметры квартиры</div>
+
+    <!-- Площадь -->
+    <div class="area-input-card">
+      <div class="area-label">Площадь квартиры</div>
+      <div class="area-input-row">
+        <input class="area-input" type="number" id="input-area"
+               inputmode="numeric" pattern="[0-9]*"
+               placeholder="52" min="10" max="500" autocomplete="off">
+        <span class="area-unit">м²</span>
+      </div>
+    </div>
+
+    <!-- Город -->
+    <div class="section-label">Город</div>
+    <div class="city-grid">
+      <button class="city-btn selected" data-coeff="1.3" data-name="Москва" onclick="selectCity(this)">
+        Москва<span class="city-coeff">×1.3</span>
+      </button>
+      <button class="city-btn" data-coeff="1.15" data-name="Санкт-Петербург" onclick="selectCity(this)">
+        Санкт-Петербург<span class="city-coeff">×1.15</span>
+      </button>
+      <button class="city-btn" data-coeff="1.0" data-name="Другой город" onclick="selectCity(this)">
+        Другой<span class="city-coeff">×1.0</span>
+      </button>
+    </div>
+
+    <!-- Выбранный тип (инфо-чип) -->
+    <div class="selected-type-chip" id="type-chip"></div>
+  </div>
+
+  <div class="screen-footer">
+    <button class="btn-main" id="btn-params-calc" disabled>Рассчитать</button>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     ЭКРАН 4: РЕЗУЛЬТАТ РАСЧЁТА
+============================================================ -->
+<div class="screen" id="screen-result">
+  <div class="screen-header">
+    <button class="back-btn" onclick="goBack()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <span class="screen-title">Расчёт стоимости</span>
+    <div class="progress-dots">
+      <div class="dot done"></div>
+      <div class="dot done"></div>
+      <div class="dot active"></div>
+    </div>
+  </div>
+
+  <div class="screen-body">
+    <!-- Итоговая сумма с анимированным счётчиком -->
+    <div class="result-card">
+      <div class="result-label">Предварительная стоимость</div>
+      <div class="result-total" id="result-total">0 ₽</div>
+      <div class="result-meta" id="result-meta"></div>
+    </div>
+
+    <!-- Разбивка: материалы / работа / накладные -->
+    <div class="breakdown">
+      <div class="breakdown-header">Из чего складывается цена</div>
+      <div class="breakdown-row">
+        <div class="breakdown-line">
+          <span class="breakdown-name">Материалы — 40%</span>
+          <span class="breakdown-val" id="bd-mat">0 ₽</span>
+        </div>
+        <div class="bar-bg"><div class="bar-fill" id="bar-mat" style="width:0;background:#2AABEE;"></div></div>
+      </div>
+      <div class="breakdown-row">
+        <div class="breakdown-line">
+          <span class="breakdown-name">Работа — 50%</span>
+          <span class="breakdown-val" id="bd-work">0 ₽</span>
+        </div>
+        <div class="bar-bg"><div class="bar-fill" id="bar-work" style="width:0;background:#4CAF50;"></div></div>
+      </div>
+      <div class="breakdown-row">
+        <div class="breakdown-line">
+          <span class="breakdown-name">Накладные расходы — 10%</span>
+          <span class="breakdown-val" id="bd-over">0 ₽</span>
+        </div>
+        <div class="bar-bg"><div class="bar-fill" id="bar-over" style="width:0;background:#FF9800;"></div></div>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      Это предварительный расчёт. Точная стоимость определяется после бесплатного выезда замерщика.
+    </div>
+  </div>
+
+  <div class="screen-footer">
+    <button class="btn-main" id="btn-result-order">Получить точную смету бесплатно</button>
+    <button class="btn-ghost" onclick="goTo('screen-type')">Пересчитать</button>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     ЭКРАН 5: ФОРМА ЗАЯВКИ
+============================================================ -->
+<div class="screen" id="screen-form">
+  <div class="screen-header">
+    <button class="back-btn" onclick="goBack()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <span class="screen-title">Оставить заявку</span>
+  </div>
+
+  <div class="screen-body">
+    <div class="card" style="padding:13px 14px;">
+      <div style="font-size:15px;font-weight:600;margin-bottom:3px;">Перезвоним за 15 минут</div>
+      <div style="font-size:13px;color:var(--hint);line-height:1.5;">Уточним детали и договоримся о бесплатном выезде замерщика</div>
+    </div>
+
+    <!-- Поля формы -->
+    <div class="form-list">
+      <div class="form-field">
+        <div class="field-ico">👤</div>
+        <div class="field-inner">
+          <div class="field-label">Ваше имя</div>
+          <input class="field-input" type="text" id="form-name" placeholder="Как вас зовут?" autocomplete="name">
+        </div>
+      </div>
+      <div class="form-field">
+        <div class="field-ico">📞</div>
+        <div class="field-inner">
+          <div class="field-label">Телефон</div>
+          <input class="field-input" type="tel" id="form-phone" placeholder="+7 (___) ___-__-__" autocomplete="tel">
+        </div>
+      </div>
+    </div>
+
+    <!-- Время звонка -->
+    <div class="section-label">Удобное время для звонка</div>
+    <div class="time-grid">
+      <button class="time-btn selected" data-time="now"     onclick="selectTime(this)">Сейчас</button>
+      <button class="time-btn"          data-time="morning" onclick="selectTime(this)">Утром</button>
+      <button class="time-btn"          data-time="evening" onclick="selectTime(this)">Вечером</button>
+    </div>
+
+    <div class="form-note">Без спама. Только один звонок от менеджера.</div>
+  </div>
+
+  <div class="screen-footer">
+    <button class="btn-main" id="btn-submit">Отправить заявку</button>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     ЭКРАН 6: УСПЕХ
+============================================================ -->
+<div class="screen" id="screen-success">
+  <div class="screen-body" style="justify-content:center;padding-top:24px;">
+    <div class="success-circle">
+      <svg width="44" height="44" viewBox="0 0 44 44">
+        <polyline class="success-check" points="9,22 18,31 35,13"/>
+      </svg>
+    </div>
+
+    <div class="success-title">Заявка принята!</div>
+    <div class="success-sub">Менеджер свяжется с вами в течение 15 минут и договорится о бесплатном выезде замерщика</div>
+
+    <!-- Резюме заявки — заполняется JS -->
+    <div class="summary-card" id="success-summary"></div>
+  </div>
+
+  <div class="screen-footer">
+    <button class="btn-main" onclick="goTo('screen-portfolio')">Посмотреть наши работы</button>
+    <button class="btn-ghost" id="btn-close">Закрыть приложение</button>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     ЭКРАН 7: ПОРТФОЛИО
+============================================================ -->
+<div class="screen" id="screen-portfolio">
+  <div class="screen-header">
+    <button class="back-btn" onclick="goBack()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <span class="screen-title">Наши работы</span>
+  </div>
+
+  <div class="screen-body">
+    <div class="portfolio-grid" id="portfolio-grid">
+      <!-- Заполняется JS через renderPortfolio() -->
+    </div>
+  </div>
+
+  <div class="screen-footer">
+    <button class="btn-main" onclick="goTo('screen-form')">Хочу такой же ремонт</button>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+
+<!-- ============================================================
+     BOTTOM SHEET — детали проекта из портфолио
+============================================================ -->
+<div class="bs-overlay" id="bs-overlay" onclick="closeSheet()"></div>
+<div class="bottom-sheet" id="bs-panel">
+  <div class="bs-handle"></div>
+  <div class="bs-title" id="bs-title"></div>
+  <div id="bs-rows"></div>
+  <div class="bs-desc" id="bs-desc"></div>
+  <button class="btn-main" onclick="closeSheet(); goTo('screen-form')">Хочу такой же ремонт</button>
+</div>
+
+
+<script>
+/* ============================================================
+   ДАННЫЕ ПРИЛОЖЕНИЯ
+   Здесь меняются цены, типы ремонта и портфолио.
+   Подробнее — в tg-app/CLAUDE.md
+============================================================ */
+
+/* Типы ремонта с ценами (руб./м²) — данные из brief.md */
+const REPAIR_TYPES = [
+  { id:'cosmetic', name:'Косметический',  price:900,  icon:'🖌️', color:'#E8F5E9', desc:'Обои, покраска, напольное покрытие' },
+  { id:'capital',  name:'Капитальный',    price:2500, icon:'🔨', color:'#E3F2FD', desc:'Замена труб, проводки, полный цикл', popular:true },
+  { id:'turnkey',  name:'Под ключ',       price:3500, icon:'🏠', color:'#FFF3E0', desc:'От чернового до финишного' },
+  { id:'design',   name:'Дизайнерский',   price:6000, icon:'✨', color:'#F3E5F5', desc:'Авторские решения, premium-отделка' },
+  { id:'newbuild', name:'Новостройка',    price:2200, icon:'🏗️', color:'#E0F2F1', desc:'Специализация — 500+ объектов' }
+];
+
+/* Портфолио выполненных проектов */
+const PORTFOLIO = [
+  { id:1, name:'Гостиная, Москва',       icon:'🛋️', bg:'#E3F2FD',
+    type:'Капитальный', area:'68 м²', days:'52 дня', cost:'2 400 000 ₽',
+    desc:'Полный капитальный ремонт с заменой коммуникаций. Натяжной потолок, ламинат 33 класса, дизайнерские обои.' },
+  { id:2, name:'Кухня-гостиная, СПб',   icon:'🍳', bg:'#FFF3E0',
+    type:'Под ключ', area:'45 м²', days:'38 дней', cost:'1 800 000 ₽',
+    desc:'Объединение кухни и гостиной. Кухонный гарнитур на заказ, встроенная техника, скрытая подсветка.' },
+  { id:3, name:'Студия, Москва',         icon:'🏠', bg:'#E8F5E9',
+    type:'Новостройка', area:'32 м²', days:'28 дней', cost:'890 000 ₽',
+    desc:'Ремонт в новостройке под ключ. Умная планировка хранения, современный минимализм.' },
+  { id:4, name:'Санузел × 2, Москва',   icon:'🚿', bg:'#F3E5F5',
+    type:'Капитальный', area:'18 м²', days:'21 день', cost:'380 000 ₽',
+    desc:'Полная реконструкция двух санузлов. Итальянская плитка, скрытые коммуникации.' }
+];
+
+/* ============================================================
+   ИНИЦИАЛИЗАЦИЯ TELEGRAM SDK
+============================================================ */
+const tg = window.Telegram?.WebApp;
+
+if (tg) {
+  tg.ready();
+  tg.expand(); /* Раскрываем на полный экран */
+  tg.setHeaderColor('secondary_bg_color');
+  tg.setBackgroundColor('secondary_bg_color');
+  /* Кнопка "Назад" в шапке Telegram */
+  tg.BackButton.onClick(goBack);
+}
+
+/* Обёртки для вызова Telegram API без ошибок в браузере */
+const TG = {
+  haptic : (type='light')   => tg?.HapticFeedback?.impactOccurred(type),
+  notify : (type='success') => tg?.HapticFeedback?.notificationOccurred(type),
+  close  : ()               => tg ? tg.close() : alert('Приложение закрыто'),
+  getName: ()               => tg?.initDataUnsafe?.user?.first_name || ''
+};
+
+/* ============================================================
+   НАВИГАЦИЯ МЕЖДУ ЭКРАНАМИ
+   history — стек экранов, currentId — активный экран
+============================================================ */
+let history  = ['screen-welcome'];
+let currentId = 'screen-welcome';
+
+/**
+ * Переход ВПЕРЁД на новый экран (слайд слева направо)
+ * @param {string} id — id целевого экрана
+ */
+function goTo(id) {
+  if (id === currentId) return;
+  TG.haptic();
+
+  const prev = document.getElementById(currentId);
+  const next = document.getElementById(id);
+
+  /* Ставим новый экран справа без анимации */
+  next.style.transition = 'none';
+  next.style.transform  = 'translateX(100%)';
+  next.style.display    = 'flex';
+
+  /* Форс-рефлоу: без него transition='none' не успеет примениться */
+  next.getBoundingClientRect();
+
+  /* Включаем переходы и запускаем анимацию */
+  const T = 'transform 0.27s cubic-bezier(0.4,0,0.2,1)';
+  prev.style.transition = T;
+  next.style.transition = T;
+  prev.style.transform  = 'translateX(-28%)';
+  next.style.transform  = 'translateX(0)';
+
+  setTimeout(() => {
+    prev.style.display    = 'none';
+    prev.style.transform  = '';
+    prev.style.transition = '';
+    next.style.transition = '';
+  }, 280);
+
+  history.push(id);
+  currentId = id;
+
+  /* Показываем BackButton Telegram когда есть куда возвращаться */
+  tg?.BackButton[history.length > 1 ? 'show' : 'hide']();
+
+  onEnter(id);
+}
+
+/**
+ * Переход НАЗАД (обратный слайд)
+ */
+function goBack() {
+  if (history.length <= 1) return;
+  TG.haptic();
+
+  history.pop();
+  const prevId = history[history.length - 1];
+  const curr = document.getElementById(currentId);
+  const prev = document.getElementById(prevId);
+
+  /* Ставим предыдущий экран слева без анимации */
+  prev.style.transition = 'none';
+  prev.style.transform  = 'translateX(-28%)';
+  prev.style.display    = 'flex';
+
+  prev.getBoundingClientRect();
+
+  const T = 'transform 0.25s cubic-bezier(0.4,0,0.2,1)';
+  curr.style.transition = T;
+  prev.style.transition = T;
+  curr.style.transform  = 'translateX(100%)';
+  prev.style.transform  = 'translateX(0)';
+
+  setTimeout(() => {
+    curr.style.display    = 'none';
+    curr.style.transform  = '';
+    curr.style.transition = '';
+    prev.style.transition = '';
+  }, 260);
+
+  currentId = prevId;
+  tg?.BackButton[history.length > 1 ? 'show' : 'hide']();
+}
+
+/**
+ * Вызывается при каждом входе на экран
+ */
+function onEnter(id) {
+  if (id === 'screen-result')    showResult();
+  if (id === 'screen-form')      prefillForm();
+  if (id === 'screen-success')   showSummary();
+}
+
+/* ============================================================
+   СОСТОЯНИЕ ПРИЛОЖЕНИЯ
+============================================================ */
+const state = {
+  type:      null,    /* Выбранный тип ремонта (объект из REPAIR_TYPES) */
+  area:      null,    /* Площадь в м² */
+  cityCoeff: 1.3,     /* Коэффициент города */
+  cityName:  'Москва',
+  total:     0,       /* Итоговая сумма */
+  name:      '',      /* Имя из формы */
+  phone:     '',      /* Телефон из формы */
+  callTime:  'now'    /* Время звонка */
+};
+
+/* ============================================================
+   ЭКРАН 2: ВЫБОР ТИПА РЕМОНТА
+============================================================ */
+function renderRepairTypes() {
+  document.getElementById('repair-list').innerHTML = REPAIR_TYPES.map((t, i) => `
+    <div class="repair-card anim anim-${i+1}" id="rc-${t.id}" onclick="selectType('${t.id}')">
+      <div class="repair-ico" style="background:${t.color}">${t.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="repair-name">${t.name}</div>
+        <div class="repair-price">от ${t.price.toLocaleString('ru-RU')} ₽/м²</div>
+      </div>
+      ${t.popular ? '<span class="repair-popular">Популярно</span>' : ''}
+      <div class="repair-check"><div class="repair-check-dot"></div></div>
+    </div>
+  `).join('');
+}
+
+function selectType(id) {
+  TG.haptic();
+  document.querySelectorAll('.repair-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`rc-${id}`).classList.add('selected');
+  state.type = REPAIR_TYPES.find(t => t.id === id);
+  document.getElementById('btn-type-next').disabled = false;
+}
+
+document.getElementById('btn-type-next').addEventListener('click', () => {
+  if (!state.type) return;
+  updateTypeChip();
+  goTo('screen-params');
+});
+
+/* ============================================================
+   ЭКРАН 3: ПАРАМЕТРЫ КВАРТИРЫ
+============================================================ */
+
+/* Чип с выбранным типом — показывается на экране параметров */
+function updateTypeChip() {
+  const t = state.type;
+  if (!t) return;
+  document.getElementById('type-chip').innerHTML = `
+    <span class="chip-ico">${t.icon}</span>
+    <div>
+      <div class="chip-label">Выбранный тип</div>
+      <div class="chip-name">${t.name} — от ${t.price.toLocaleString('ru-RU')} ₽/м²</div>
+    </div>
+  `;
+}
+
+/* Выбор города */
+function selectCity(btn) {
+  TG.haptic();
+  document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.cityCoeff = parseFloat(btn.dataset.coeff);
+  state.cityName  = btn.dataset.name;
+}
+
+/* Слежение за полем площади */
+const inputArea = document.getElementById('input-area');
+const btnCalc   = document.getElementById('btn-params-calc');
+
+inputArea.addEventListener('input', () => {
+  const v = parseInt(inputArea.value);
+  state.area = (v >= 10 && v <= 500) ? v : null;
+  btnCalc.disabled = !state.area;
+});
+
+btnCalc.addEventListener('click', () => {
+  if (!state.area) return;
+  state.total = state.area * state.type.price * state.cityCoeff;
+  goTo('screen-result');
+});
+
+/* ============================================================
+   ЭКРАН 4: РЕЗУЛЬТАТ РАСЧЁТА
+============================================================ */
+
+/* Форматирование суммы с пробелами */
+function fmt(n) {
+  return Math.round(n).toLocaleString('ru-RU') + ' ₽';
+}
+
+/* Анимированный счётчик суммы */
+function animCount(el, target, ms = 900) {
+  const step = target / (ms / 16);
+  let cur = 0;
+  const t = setInterval(() => {
+    cur = Math.min(cur + step, target);
+    el.textContent = fmt(cur);
+    if (cur >= target) clearInterval(t);
+  }, 16);
+}
+
+function showResult() {
+  const total = state.total;
+  const mat   = total * 0.40;
+  const work  = total * 0.50;
+  const over  = total * 0.10;
+
+  /* Счётчик */
+  animCount(document.getElementById('result-total'), total);
+
+  /* Параметры под суммой */
+  document.getElementById('result-meta').textContent =
+    `${state.type.name} · ${state.area} м² · ${state.cityName}`;
+
+  /* Значения разбивки */
+  document.getElementById('bd-mat').textContent  = fmt(mat);
+  document.getElementById('bd-work').textContent = fmt(work);
+  document.getElementById('bd-over').textContent = fmt(over);
+
+  /* Прогресс-бары (с задержкой для эффекта) */
+  setTimeout(() => {
+    document.getElementById('bar-mat').style.width  = '40%';
+    document.getElementById('bar-work').style.width = '50%';
+    document.getElementById('bar-over').style.width = '10%';
+  }, 350);
+}
+
+document.getElementById('btn-result-order').addEventListener('click', () => {
+  goTo('screen-form');
+});
+
+/* ============================================================
+   ЭКРАН 5: ФОРМА ЗАЯВКИ
+============================================================ */
+
+/* Выбор удобного времени */
+function selectTime(btn) {
+  TG.haptic();
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.callTime = btn.dataset.time;
+}
+
+/* Предзаполнение имени из Telegram */
+function prefillForm() {
+  const nameField = document.getElementById('form-name');
+  if (!nameField.value) {
+    const tgName = TG.getName();
+    if (tgName) nameField.value = tgName;
+  }
+}
+
+/* Тряска поля при ошибке */
+function shake(fieldId) {
+  const field = document.getElementById(fieldId).closest('.form-field') ||
+                document.getElementById(fieldId);
+  field.classList.remove('shake');
+  void field.offsetWidth; /* Перезапуск анимации */
+  field.classList.add('shake');
+  TG.haptic('medium');
+}
+
+/* Отправка формы */
+document.getElementById('btn-submit').addEventListener('click', () => {
+  const name  = document.getElementById('form-name').value.trim();
+  const phone = document.getElementById('form-phone').value.trim();
+
+  if (!name)  { shake('form-name');  return; }
+  if (!phone) { shake('form-phone'); return; }
+
+  state.name  = name;
+  state.phone = phone;
+
+  /* === ИНТЕГРАЦИЯ С TELEGRAM БОТОМ ===
+     В продакшене здесь отправляем данные на сервер:
+     fetch('https://ваш-сервер.ru/api/lead', {
+       method: 'POST',
+       body: JSON.stringify({ ...state }),
+       headers: { 'Content-Type': 'application/json' }
+     });
+     Или используем tg.sendData() для inline-режима бота. */
+
+  TG.notify('success');
+  goTo('screen-success');
+});
+
+/* ============================================================
+   ЭКРАН 6: УСПЕХ
+============================================================ */
+const TIME_LABELS = { now:'В ближайшее время', morning:'Утром', evening:'Вечером' };
+
+function showSummary() {
+  const rows = [
+    ['Тип ремонта',     state.type?.name      || '—'],
+    ['Площадь',         `${state.area} м²`       ],
+    ['Город',            state.cityName           ],
+    ['Предварительно',   fmt(state.total)         ],
+    ['Звонок',           TIME_LABELS[state.callTime] || 'Сейчас']
+  ];
+
+  document.getElementById('success-summary').innerHTML =
+    rows.map(([k,v]) => `
+      <div class="summary-row">
+        <span class="summary-key">${k}</span>
+        <span class="summary-val">${v}</span>
+      </div>
+    `).join('');
+}
+
+document.getElementById('btn-close').addEventListener('click', TG.close);
+
+/* ============================================================
+   ЭКРАН 7: ПОРТФОЛИО
+============================================================ */
+function renderPortfolio() {
+  document.getElementById('portfolio-grid').innerHTML =
+    PORTFOLIO.map(p => `
+      <div class="portfolio-card" onclick="openProject(${p.id})">
+        <div class="portfolio-thumb" style="background:${p.bg}">${p.icon}</div>
+        <div class="portfolio-body">
+          <div class="portfolio-name">${p.name}</div>
+          <div class="portfolio-meta">${p.type} · ${p.area}</div>
+        </div>
+      </div>
+    `).join('');
+}
+
+/* Открытие деталей проекта в bottom sheet */
+function openProject(id) {
+  TG.haptic();
+  const p = PORTFOLIO.find(x => x.id === id);
+  if (!p) return;
+
+  document.getElementById('bs-title').textContent = p.name;
+  document.getElementById('bs-rows').innerHTML = [
+    ['Тип', p.type], ['Площадь', p.area],
+    ['Срок', p.days], ['Стоимость', p.cost]
+  ].map(([k,v]) => `
+    <div class="bs-row">
+      <span class="bs-key">${k}</span>
+      <span class="bs-val">${v}</span>
+    </div>
+  `).join('');
+  document.getElementById('bs-desc').textContent = p.desc;
+
+  document.getElementById('bs-overlay').classList.add('open');
+  document.getElementById('bs-panel').classList.add('open');
+}
+
+function closeSheet() {
+  document.getElementById('bs-overlay').classList.remove('open');
+  document.getElementById('bs-panel').classList.remove('open');
+}
+
+/* Закрытие свайпом вниз — перетаскивание bottom sheet */
+(function() {
+  const panel = document.getElementById('bs-panel');
+  let startY = 0, startTranslate = 0, dragging = false;
+
+  panel.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY;
+    dragging = true;
+    panel.style.transition = 'none';
+  }, { passive:true });
+
+  panel.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const delta = Math.max(0, e.touches[0].clientY - startY);
+    panel.style.transform = `translateY(${delta}px)`;
+  }, { passive:true });
+
+  panel.addEventListener('touchend', e => {
+    dragging = false;
+    panel.style.transition = '';
+    const delta = e.changedTouches[0].clientY - startY;
+    if (delta > 80) closeSheet();
+    else panel.style.transform = '';
+  });
+})();
+
+/* ============================================================
+   КНОПКА "ВВЕРХ" — скролл к началу экрана при долгом контенте
+   (используется неявно, когда экран прокручен вниз)
+============================================================ */
+
+/* ============================================================
+   ИНИЦИАЛИЗАЦИЯ — вызывается один раз при загрузке
+============================================================ */
+function init() {
+  renderRepairTypes();
+  renderPortfolio();
+
+  /* Кнопки на первом экране */
+  document.getElementById('btn-welcome').addEventListener('click', () => {
+    goTo('screen-type');
+  });
+
+  /* Кнопка "Далее" на экране типа */
+  /* (уже назначена выше через addEventListener) */
+}
+
+init();
+</script>
+</body>
+</html>
