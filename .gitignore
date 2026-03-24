@@ -1,0 +1,17 @@
+# Секретные переменные — НИКОГДА не коммитить
+.env
+.env.local
+tg-app/.env
+
+# Системные файлы Windows
+desktop.ini
+Thumbs.db
+
+# Системные файлы macOS
+.DS_Store
+
+# Зависимости (если когда-нибудь добавится Node.js)
+node_modules/
+
+# Логи
+*.log
