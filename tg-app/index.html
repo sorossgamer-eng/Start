@@ -113,6 +113,7 @@ html, body {
   font-size: 17px;
   font-weight: 600;
   flex: 1;
+  text-align: center;
 }
 
 /* --- Кнопка "Назад" --- */
@@ -172,7 +173,6 @@ html, body {
 .card {
   background: var(--bg);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
 }
 
 /* --- Подпись-заголовок раздела (маленькими буквами) --- */
@@ -332,7 +332,9 @@ html, body {
 .repair-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 .repair-card {
   display: flex;
@@ -340,16 +342,13 @@ html, body {
   gap: 13px;
   padding: 13px 14px;
   background: var(--bg);
-  border-radius: var(--radius);
-  border: 2px solid transparent;
+  border-bottom: 0.5px solid var(--border);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.12s, transform 0.1s;
+  transition: background 0.12s;
 }
-.repair-card:active { transform: scale(0.98); }
-.repair-card.selected {
-  border-color: var(--accent);
-  background: rgba(42,171,238,0.05);
-}
+.repair-card:last-child { border-bottom: none; }
+.repair-card:active { background: var(--bg2); }
+.repair-card.selected { background: var(--bg); }
 .repair-ico {
   width: 46px;
   height: 46px;
@@ -382,7 +381,7 @@ html, body {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 2px solid var(--border);
+  border: 1.5px solid rgba(0,0,0,0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -412,7 +411,6 @@ html, body {
 .area-input-card {
   background: var(--bg);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
   padding: 12px 16px 16px;
 }
 .area-label {
@@ -447,20 +445,23 @@ html, body {
   color: var(--hint);
 }
 
-/* Выбор города */
+/* Выбор города — сегментированный контрол */
 .city-grid {
   display: flex;
-  gap: 8px;
+  background: var(--bg2);
+  border-radius: 10px;
+  padding: 2px;
+  gap: 0;
 }
 .city-btn {
   flex: 1;
-  min-height: 46px;
-  background: var(--bg);
-  border: 2px solid transparent;
-  border-radius: 12px;
+  min-height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--text);
+  color: var(--hint);
   cursor: pointer;
   font-family: var(--font);
   display: flex;
@@ -468,20 +469,21 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 1px;
-  transition: all 0.15s;
+  transition: all 0.18s;
 }
-.city-btn:active { transform: scale(0.97); }
+.city-btn:active { opacity: 0.7; }
 .city-btn.selected {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(42,171,238,0.06);
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  font-weight: 600;
 }
 .city-coeff {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--hint);
   font-weight: 400;
 }
-.city-btn.selected .city-coeff { color: rgba(42,171,238,0.7); }
+.city-btn.selected .city-coeff { color: var(--hint); }
 
 /* Инфо о выбранном типе */
 .selected-type-chip {
@@ -491,7 +493,6 @@ html, body {
   padding: 11px 14px;
   background: var(--bg);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
 }
 .chip-ico { font-size: 22px; }
 .chip-label { font-size: 12px; color: var(--hint); }
@@ -530,7 +531,6 @@ html, body {
 .breakdown {
   background: var(--bg);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
   overflow: hidden;
 }
 .breakdown-header {
@@ -577,7 +577,6 @@ html, body {
   color: var(--hint);
   line-height: 1.5;
   border-left: 3px solid var(--accent);
-  box-shadow: var(--shadow);
 }
 
 /* ============================================================
@@ -588,7 +587,6 @@ html, body {
 .form-list {
   background: var(--bg);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
   overflow: hidden;
 }
 .form-field {
@@ -633,30 +631,34 @@ html, body {
 }
 .field-input::placeholder { color: var(--hint); font-weight: 400; }
 
-/* Выбор времени */
+/* Выбор времени — сегментированный контрол */
 .time-grid {
   display: flex;
-  gap: 8px;
+  background: var(--bg2);
+  border-radius: 10px;
+  padding: 2px;
+  gap: 0;
 }
 .time-btn {
   flex: 1;
-  min-height: 46px;
-  background: var(--bg);
-  border: 2px solid transparent;
-  border-radius: 12px;
-  font-size: 14px;
+  min-height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 500;
-  color: var(--text);
+  color: var(--hint);
   cursor: pointer;
   font-family: var(--font);
-  transition: all 0.15s;
+  transition: all 0.18s;
 }
 .time-btn.selected {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(42,171,238,0.06);
+  background: var(--bg);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
 }
-.time-btn:active { transform: scale(0.97); }
+.time-btn:active { opacity: 0.7; }
 
 .form-note {
   font-size: 13px;
@@ -750,7 +752,6 @@ html, body {
   border-radius: var(--radius);
   overflow: hidden;
   cursor: pointer;
-  box-shadow: var(--shadow);
   transition: transform 0.15s;
 }
 .portfolio-card:active { transform: scale(0.96); }
