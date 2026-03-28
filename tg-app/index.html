@@ -1348,11 +1348,12 @@ html, body {
 
 /* Типы ремонта с ценами (руб./м²) — данные из brief.md */
 const REPAIR_TYPES = [
-  { id:'cosmetic', name:'Косметический',  price:900,  icon:'🖌️', color:'#E8F5E9', desc:'Обои, покраска, напольное покрытие' },
-  { id:'capital',  name:'Капитальный',    price:2500, icon:'🔨', color:'#E3F2FD', desc:'Замена труб, проводки, полный цикл', popular:true },
-  { id:'turnkey',  name:'Под ключ',       price:3500, icon:'🏠', color:'#FFF3E0', desc:'От чернового до финишного' },
-  { id:'design',   name:'Дизайнерский',   price:6000, icon:'✨', color:'#F3E5F5', desc:'Авторские решения, premium-отделка' },
-  { id:'newbuild', name:'Новостройка',    price:2200, icon:'🏗️', color:'#E0F2F1', desc:'Специализация — 500+ объектов' }
+  { id:'cosmetic', name:'Косметический',  price:900,   icon:'🖌️', color:'#E8F5E9', desc:'Обои, покраска, напольное покрытие' },
+  { id:'capital',  name:'Капитальный',    price:2500,  icon:'🔨', color:'#E3F2FD', desc:'Замена труб, проводки, полный цикл', popular:true },
+  { id:'turnkey',  name:'Под ключ',       price:3500,  icon:'🏠', color:'#FFF3E0', desc:'От чернового до финишного — заезжаете в готовую' },
+  { id:'design',   name:'Дизайнерский',   price:6000,  icon:'✨', color:'#F3E5F5', desc:'Авторские решения, premium-отделка' },
+  { id:'newbuild', name:'Новостройка',    price:2200,  icon:'🏗️', color:'#E0F2F1', desc:'Специализация — 500+ объектов опыта' },
+  { id:'bathroom', name:'Санузел',        price:null,  flat:85000, icon:'🚿', color:'#E8EAF6', desc:'Полная реконструкция ванной и туалета' }
 ];
 
 /* Портфолио выполненных проектов */
@@ -1510,7 +1511,7 @@ function renderRepairTypes() {
       <div class="repair-ico" style="background:${t.color}">${t.icon}</div>
       <div style="flex:1;min-width:0;">
         <div class="repair-name">${t.name}</div>
-        <div class="repair-price">от ${t.price.toLocaleString('ru-RU')} ₽/м²</div>
+        <div class="repair-price">${t.flat ? 'от ' + t.flat.toLocaleString('ru-RU') + ' ₽' : 'от ' + t.price.toLocaleString('ru-RU') + ' ₽/м²'}</div>
       </div>
       ${t.popular ? '<span class="repair-popular">Популярно</span>' : ''}
       <div class="repair-check"><div class="repair-check-dot"></div></div>
@@ -1544,7 +1545,7 @@ function updateTypeChip() {
     <span class="chip-ico">${t.icon}</span>
     <div>
       <div class="chip-label">Выбранный тип</div>
-      <div class="chip-name">${t.name} — от ${t.price.toLocaleString('ru-RU')} ₽/м²</div>
+      <div class="chip-name">${t.name} — ${t.flat ? 'от ' + t.flat.toLocaleString('ru-RU') + ' ₽' : 'от ' + t.price.toLocaleString('ru-RU') + ' ₽/м²'}</div>
     </div>
   `;
 }
@@ -1570,7 +1571,9 @@ inputArea.addEventListener('input', () => {
 
 btnCalc.addEventListener('click', () => {
   if (!state.area) return;
-  state.total = state.area * state.type.price * state.cityCoeff;
+  state.total = state.type.flat
+    ? state.type.flat * state.cityCoeff
+    : state.area * state.type.price * state.cityCoeff;
   goTo('screen-result');
 });
 
