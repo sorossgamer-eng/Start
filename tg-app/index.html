@@ -848,6 +848,55 @@ html, body {
 .anim-5 { animation-delay: 0.24s; }
 
 /* ============================================================
+   TAB BAR — нижнее меню
+============================================================ */
+:root { --tab-h: 56px; }
+
+.tab-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: calc(var(--tab-h) + env(safe-area-inset-bottom));
+  background: var(--bg);
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  padding-top: 6px;
+  z-index: 90;
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 0 4px;
+  background: none;
+  border: none;
+  font-family: var(--font);
+  cursor: pointer;
+  color: var(--hint);
+  transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-item.active { color: var(--accent); }
+.tab-item:active { opacity: 0.7; }
+
+.tab-icon { font-size: 22px; line-height: 1; }
+
+.tab-label {
+  font-size: 10px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Экраны не должны прятаться за tab bar */
+.screen-footer {
+  padding-bottom: calc(max(12px, env(safe-area-inset-bottom)) + var(--tab-h)) !important;
+}
+
+/* ============================================================
    SHAKE-АНИМАЦИЯ для ошибок в форме
 ============================================================ */
 @keyframes shake {
@@ -1328,6 +1377,26 @@ html, body {
     <button class="offer-skip" id="offer-skip" onclick="closeOffer()">Пропустить</button>
   </div>
 </div>
+
+<!-- TAB BAR -->
+<nav class="tab-bar" id="tabBar">
+  <button class="tab-item active" id="tab-0" onclick="tabNav(0)">
+    <span class="tab-icon">🏠</span>
+    <span class="tab-label">О нас</span>
+  </button>
+  <button class="tab-item" id="tab-1" onclick="tabNav(1)">
+    <span class="tab-icon">🔨</span>
+    <span class="tab-label">Вид ремонта</span>
+  </button>
+  <button class="tab-item" id="tab-2" onclick="tabNav(2)">
+    <span class="tab-icon">🧮</span>
+    <span class="tab-label">Рассчитать</span>
+  </button>
+  <button class="tab-item" id="tab-3" onclick="tabNav(3)">
+    <span class="tab-icon">📋</span>
+    <span class="tab-label">Получить смету</span>
+  </button>
+</nav>
 
 <div class="bs-overlay" id="bs-overlay" onclick="closeSheet()"></div>
 <div class="bottom-sheet" id="bs-panel">
@@ -1849,6 +1918,71 @@ if (!localStorage.getItem(OFFER_KEY)) {
     if (e.target === offerOverlay) closeOffer();
   });
 }
+
+/* ============================================================
+   TAB BAR
+============================================================ */
+const TAB_SCREENS = [
+  'screen-welcome',  // 0 — О нас
+  'screen-type',     // 1 — Вид ремонта
+  'screen-params',   // 2 — Рассчитать
+  'screen-form'      // 3 — Получить смету
+];
+
+/* Какой таб активен для каждого экрана */
+const SCREEN_TAB = {
+  'screen-welcome':   0,
+  'screen-type':      1,
+  'screen-params':    2,
+  'screen-result':    2,
+  'screen-form':      3,
+  'screen-success':   3,
+  'screen-portfolio': 0,
+  'screen-onboard':   0
+};
+
+function setActiveTab(idx) {
+  document.querySelectorAll('.tab-item').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+}
+
+function tabNav(idx) {
+  const target = TAB_SCREENS[idx];
+
+  /* Для "Рассчитать" — нужен выбранный тип, иначе на выбор */
+  if (idx === 2 && !state.type) {
+    goTo('screen-type');
+    setActiveTab(1);
+    return;
+  }
+
+  /* Для "Вид ремонта" → сброс выбора не нужен, просто переход */
+  history = [target];
+  currentId = target;
+
+  document.querySelectorAll('.screen').forEach(s => {
+    s.style.display = 'none';
+    s.style.transform = '';
+    s.style.transition = '';
+  });
+
+  const next = document.getElementById(target);
+  next.style.display = 'flex';
+  next.style.transform = 'translateX(0)';
+
+  tg?.BackButton.hide();
+  setActiveTab(idx);
+  onEnter(target);
+}
+
+/* Обновляем таб при переходе через goTo */
+const _origGoTo = goTo;
+goTo = function(id) {
+  _origGoTo(id);
+  const tabIdx = SCREEN_TAB[id];
+  if (tabIdx !== undefined) setActiveTab(tabIdx);
+};
 </script>
 </body>
 </html>
