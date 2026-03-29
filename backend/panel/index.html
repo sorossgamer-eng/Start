@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Панель подрядчика — РемонтПро</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #f5f5f7;
+    --card:     #ffffff;
+    --border:   #e0e0e0;
+    --text:     #1c1c1e;
+    --hint:     #8e8e93;
+    --accent:   #2AABEE;
+    --danger:   #ff3b30;
+    --success:  #34c759;
+    --warning:  #ff9500;
+  }
+
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+  /* LOGIN */
+  #login-screen {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+  .login-card {
+    background: white; border-radius: 20px; padding: 40px;
+    width: 360px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .login-logo { text-align: center; margin-bottom: 32px; }
+  .login-logo h1 { font-size: 24px; font-weight: 700; }
+  .login-logo p  { color: var(--hint); font-size: 14px; margin-top: 4px; }
+
+  /* APP */
+  #app { display: none; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0; width: 220px;
+    background: white; border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; z-index: 100;
+  }
+  .sidebar-logo {
+    padding: 20px 16px 16px; border-bottom: 1px solid var(--border);
+    font-weight: 700; font-size: 18px;
+  }
+  .sidebar-logo span { color: var(--accent); }
+  .sidebar-plan {
+    font-size: 11px; font-weight: 600; color: white;
+    background: var(--accent); border-radius: 4px;
+    padding: 2px 6px; margin-left: 8px; text-transform: uppercase;
+  }
+  .sidebar-nav { flex: 1; padding: 8px 0; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; cursor: pointer; border-radius: 0;
+    transition: background 0.15s; font-size: 14px; color: var(--text);
+    border: none; background: none; width: 100%; text-align: left;
+  }
+  .nav-item:hover  { background: var(--bg); }
+  .nav-item.active { background: #e8f4fd; color: var(--accent); font-weight: 600; }
+  .nav-item .icon  { font-size: 18px; width: 24px; text-align: center; }
+  .sidebar-footer { padding: 16px; border-top: 1px solid var(--border); }
+  .sidebar-user   { font-size: 13px; color: var(--hint); margin-bottom: 8px; }
+
+  /* MAIN */
+  .main { margin-left: 220px; padding: 24px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-title { font-size: 24px; font-weight: 700; margin-bottom: 20px; }
+
+  /* CARDS */
+  .card {
+    background: var(--card); border-radius: 12px;
+    border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;
+  }
+  .card-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+
+  /* STATS ROW */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-card {
+    background: var(--card); border-radius: 12px; border: 1px solid var(--border);
+    padding: 16px; text-align: center;
+  }
+  .stat-value { font-size: 28px; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 12px; color: var(--hint); margin-top: 4px; }
+
+  /* FORM */
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; color: var(--hint); margin-bottom: 6px; font-weight: 500; }
+  .form-group input, .form-group textarea, .form-group select {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 8px; font-size: 15px; font-family: inherit;
+    background: white; color: var(--text); outline: none;
+    transition: border 0.15s;
+  }
+  .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* BUTTONS */
+  .btn {
+    padding: 10px 20px; border-radius: 8px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.15s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-danger  { background: var(--danger); color: white; }
+  .btn-ghost   { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+  .btn-sm      { padding: 6px 12px; font-size: 13px; }
+
+  /* LEADS TABLE */
+  .leads-table { width: 100%; border-collapse: collapse; }
+  .leads-table th {
+    text-align: left; font-size: 12px; color: var(--hint);
+    font-weight: 600; padding: 8px 12px; border-bottom: 1px solid var(--border);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .leads-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .leads-table tr:hover td { background: var(--bg); }
+
+  /* STATUS BADGE */
+  .badge {
+    display: inline-block; padding: 3px 8px; border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+  }
+  .badge-new      { background: #e3f2fd; color: #1565c0; }
+  .badge-called   { background: #fff3e0; color: #e65100; }
+  .badge-in_work  { background: #f3e5f5; color: #6a1b9a; }
+  .badge-done     { background: #e8f5e9; color: #2e7d32; }
+  .badge-rejected { background: #fce4ec; color: #b71c1c; }
+
+  /* SERVICES LIST */
+  .service-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px; border: 1px solid var(--border); border-radius: 10px;
+    margin-bottom: 8px; background: white;
+  }
+  .service-icon { font-size: 24px; width: 40px; text-align: center; }
+  .service-info { flex: 1; }
+  .service-name { font-weight: 600; }
+  .service-price { font-size: 13px; color: var(--hint); margin-top: 2px; }
+  .service-actions { display: flex; gap: 8px; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; display: none;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white; border-radius: 16px; padding: 24px;
+    width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+  }
+  .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+  .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+  /* ALERT */
+  .alert {
+    padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;
+    font-size: 14px; display: none;
+  }
+  .alert.show { display: block; }
+  .alert-error   { background: #fce4ec; color: #b71c1c; }
+  .alert-success { background: #e8f5e9; color: #2e7d32; }
+
+  /* COLOR PICKER */
+  .color-row { display: flex; align-items: center; gap: 12px; }
+  .color-preview { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); flex-shrink: 0; }
+
+  @media (max-width: 768px) {
+    .sidebar { width: 60px; }
+    .nav-item span, .sidebar-logo h1, .sidebar-footer { display: none; }
+    .main { margin-left: 60px; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <h1>РемонтПро</h1>
+      <p>Панель управления подрядчика</p>
+    </div>
+    <div id="login-alert" class="alert alert-error"></div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="demo@example.com">
+    </div>
+    <div class="form-group">
+      <label>Пароль</label>
+      <input type="password" id="login-password" placeholder="••••••••">
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="login()">Войти</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <span>РП</span> Панель
+      <span class="sidebar-plan" id="plan-badge">FREE</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="showPage('leads')" data-page="leads">
+        <span class="icon">📋</span><span>Заявки</span>
+      </button>
+      <button class="nav-item" onclick="showPage('services')" data-page="services">
+        <span class="icon">🔧</span><span>Услуги</span>
+      </button>
+      <button class="nav-item" onclick="showPage('profile')" data-page="profile">
+        <span class="icon">⚙️</span><span>Профиль</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user"></div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()" style="width:100%">Выйти</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ЗАЯВКИ -->
+    <div id="page-leads" class="page active">
+      <div class="page-title">Заявки</div>
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card"><div class="stat-value" id="stat-total">—</div><div class="stat-label">Всего</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-new">—</div><div class="stat-label">Новых</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-done">—</div><div class="stat-label">Закрытых</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-sum">—</div><div class="stat-label">Сумма ₽</div></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div class="card-title" style="margin:0">Список заявок</div>
+          <select id="filter-status" onchange="loadLeads()" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px">
+            <option value="">Все статусы</option>
+            <option value="new">Новые</option>
+            <option value="called">Позвонили</option>
+            <option value="in_work">В работе</option>
+            <option value="done">Закрыты</option>
+            <option value="rejected">Отказ</option>
+          </select>
+        </div>
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Клиент</th>
+              <th>Телефон</th>
+              <th>Услуга</th>
+              <th>Сумма</th>
+              <th>Статус</th>
+              <th>Дата</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="leads-body">
+            <tr><td colspan="7" style="text-align:center;color:var(--hint);padding:32px">Загрузка...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- УСЛУГИ -->
+    <div id="page-services" class="page">
+      <div class="page-title">Услуги</div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div class="card-title" style="margin:0">Услуги в калькуляторе</div>
+          <button class="btn btn-primary btn-sm" onclick="openServiceModal()">+ Добавить</button>
+        </div>
+        <div id="services-list">Загрузка...</div>
+      </div>
+    </div>
+
+    <!-- ПРОФИЛЬ -->
+    <div id="page-profile" class="page">
+      <div class="page-title">Профиль и бренд</div>
+      <div id="profile-alert" class="alert"></div>
+      <div class="card">
+        <div class="card-title">Брендинг Mini App</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Название компании</label>
+            <input type="text" id="p-brand" placeholder="СтройМастер">
+          </div>
+          <div class="form-group">
+            <label>Телефон</label>
+            <input type="text" id="p-phone" placeholder="+7 (999) 000-00-00">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Слоган</label>
+          <input type="text" id="p-tagline" placeholder="Ремонт квартир под ключ в Москве">
+        </div>
+        <div class="form-group">
+          <label>Акцентный цвет кнопок</label>
+          <div class="color-row">
+            <div class="color-preview" id="color-preview"></div>
+            <input type="text" id="p-color" placeholder="#2AABEE" oninput="updateColorPreview()" style="flex:1">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveProfile()">Сохранить</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Telegram бот</div>
+        <p style="font-size:14px;color:var(--hint);margin-bottom:16px">
+          Бот нужен для получения уведомлений о новых заявках. Создайте бота через @BotFather и вставьте токен.
+        </p>
+        <div class="form-group">
+          <label>Текущий бот</label>
+          <input type="text" id="p-bot" readonly style="background:var(--bg)" placeholder="Не настроен">
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: заявка -->
+<div class="modal-overlay" id="lead-modal">
+  <div class="modal">
+    <div class="modal-title">Заявка</div>
+    <div id="lead-detail"></div>
+    <div class="form-group" style="margin-top:16px">
+      <label>Статус</label>
+      <select id="lead-status">
+        <option value="new">Новая</option>
+        <option value="called">Позвонили</option>
+        <option value="in_work">В работе</option>
+        <option value="done">Закрыта</option>
+        <option value="rejected">Отказ</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Заметка</label>
+      <textarea id="lead-note" rows="3" placeholder="Договорились на среду..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('lead-modal')">Отмена</button>
+      <button class="btn btn-primary" onclick="saveLead()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: услуга -->
+<div class="modal-overlay" id="service-modal">
+  <div class="modal">
+    <div class="modal-title" id="service-modal-title">Новая услуга</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Название</label>
+        <input type="text" id="s-name" placeholder="Капитальный ремонт">
+      </div>
+      <div class="form-group">
+        <label>Иконка (emoji)</label>
+        <input type="text" id="s-icon" placeholder="🔨">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Цена за м² (₽) — или оставь пустым</label>
+        <input type="number" id="s-price" placeholder="2500">
+      </div>
+      <div class="form-group">
+        <label>Фикс. цена (₽) — или оставь пустым</label>
+        <input type="number" id="s-flat" placeholder="85000">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Описание</label>
+      <input type="text" id="s-desc" placeholder="Замена труб, проводки, полный цикл">
+    </div>
+    <div class="form-group">
+      <label><input type="checkbox" id="s-popular"> Показывать плашку «Популярно»</label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('service-modal')">Отмена</button>
+      <button class="btn btn-primary" onclick="saveService()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── CONFIG ──────────────────────────────────────────────
+  const API = 'http://localhost:3000/api/contractor';
+  let TOKEN = localStorage.getItem('rp_token');
+  let currentLeadId = null;
+  let currentServiceId = null;
+
+  // ─── INIT ────────────────────────────────────────────────
+  if (TOKEN) initApp();
+
+  async function initApp() {
+    try {
+      const me = await api('/auth/me');
+      document.getElementById('sidebar-user').textContent = me.owner_name || me.owner_email;
+      document.getElementById('plan-badge').textContent = me.plan.toUpperCase();
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      loadLeads();
+      loadProfile();
+    } catch(e) {
+      TOKEN = null;
+      localStorage.removeItem('rp_token');
+    }
+  }
+
+  // ─── API HELPER ──────────────────────────────────────────
+  async function api(path, options = {}) {
+    const res = await fetch(API + path, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${TOKEN}`,
+        ...options.headers
+      }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Ошибка');
+    return data;
+  }
+
+  // ─── AUTH ────────────────────────────────────────────────
+  async function login() {
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const alert    = document.getElementById('login-alert');
+    alert.classList.remove('show');
+    try {
+      const data = await fetch(API + '/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      }).then(r => r.json());
+      if (!data.token) throw new Error(data.error);
+      TOKEN = data.token;
+      localStorage.setItem('rp_token', TOKEN);
+      initApp();
+    } catch(e) {
+      alert.textContent = e.message;
+      alert.classList.add('show');
+    }
+  }
+
+  document.getElementById('login-password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') login();
+  });
+
+  function logout() {
+    TOKEN = null;
+    localStorage.removeItem('rp_token');
+    location.reload();
+  }
+
+  // ─── NAVIGATION ──────────────────────────────────────────
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.querySelector(`[data-page="${name}"]`).classList.add('active');
+    if (name === 'services') loadServices();
+    if (name === 'leads') loadLeads();
+  }
+
+  // ─── LEADS ───────────────────────────────────────────────
+  async function loadLeads() {
+    const status = document.getElementById('filter-status').value;
+    const leads  = await api('/leads' + (status ? `?status=${status}` : ''));
+    const tbody  = document.getElementById('leads-body');
+
+    // Статистика
+    const all   = await api('/leads');
+    document.getElementById('stat-total').textContent = all.length;
+    document.getElementById('stat-new').textContent   = all.filter(l => l.status === 'new').length;
+    document.getElementById('stat-done').textContent  = all.filter(l => l.status === 'done').length;
+    const sum = all.reduce((s, l) => s + (l.estimated_cost || 0), 0);
+    document.getElementById('stat-sum').textContent   = sum ? (sum / 1000000).toFixed(1) + 'М' : '0';
+
+    if (!leads.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--hint);padding:32px">Заявок нет</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = leads.map(l => `
+      <tr>
+        <td><b>${l.client_name}</b></td>
+        <td>${l.client_phone}</td>
+        <td>${l.repair_type || '—'} ${l.area_sqm ? l.area_sqm + ' м²' : ''}</td>
+        <td>${l.estimated_cost ? l.estimated_cost.toLocaleString('ru-RU') + ' ₽' : '—'}</td>
+        <td><span class="badge badge-${l.status}">${statusName(l.status)}</span></td>
+        <td style="color:var(--hint);font-size:13px">${new Date(l.created_at).toLocaleDateString('ru-RU')}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="openLeadModal(${JSON.stringify(l).replace(/"/g,'&quot;')})">Открыть</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function statusName(s) {
+    return { new:'Новая', called:'Позвонили', in_work:'В работе', done:'Закрыта', rejected:'Отказ' }[s] || s;
+  }
+
+  function openLeadModal(lead) {
+    currentLeadId = lead.id;
+    document.getElementById('lead-detail').innerHTML = `
+      <div style="background:var(--bg);border-radius:10px;padding:16px;margin-bottom:16px">
+        <div style="font-size:18px;font-weight:700;margin-bottom:4px">${lead.client_name}</div>
+        <div style="color:var(--accent);font-size:16px;margin-bottom:12px">${lead.client_phone}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px">
+          <div><span style="color:var(--hint)">Услуга:</span> ${lead.repair_type || '—'}</div>
+          <div><span style="color:var(--hint)">Площадь:</span> ${lead.area_sqm ? lead.area_sqm + ' м²' : '—'}</div>
+          <div><span style="color:var(--hint)">Город:</span> ${lead.city || '—'}</div>
+          <div><span style="color:var(--hint)">Время звонка:</span> ${lead.call_time || '—'}</div>
+          <div><span style="color:var(--hint)">Сумма:</span> ${lead.estimated_cost ? lead.estimated_cost.toLocaleString('ru-RU') + ' ₽' : '—'}</div>
+          <div><span style="color:var(--hint)">Дата:</span> ${new Date(lead.created_at).toLocaleString('ru-RU')}</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('lead-status').value = lead.status;
+    document.getElementById('lead-note').value   = lead.manager_note || '';
+    openModal('lead-modal');
+  }
+
+  async function saveLead() {
+    const status = document.getElementById('lead-status').value;
+    const note   = document.getElementById('lead-note').value;
+    await api(`/leads/${currentLeadId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status, manager_note: note })
+    });
+    closeModal('lead-modal');
+    loadLeads();
+  }
+
+  // ─── SERVICES ────────────────────────────────────────────
+  async function loadServices() {
+    const services = await api('/services');
+    const list = document.getElementById('services-list');
+    if (!services.length) {
+      list.innerHTML = '<p style="color:var(--hint);text-align:center;padding:32px">Нет услуг. Нажмите «Добавить»</p>';
+      return;
+    }
+    list.innerHTML = services.map(s => `
+      <div class="service-item">
+        <div class="service-icon">${s.icon}</div>
+        <div class="service-info">
+          <div class="service-name">${s.name} ${s.is_popular ? '<span style="font-size:11px;background:#fff3e0;color:#e65100;padding:2px 6px;border-radius:4px">Популярно</span>' : ''}</div>
+          <div class="service-price">${s.price_per_sqm ? s.price_per_sqm + ' ₽/м²' : ''} ${s.flat_price ? 'Фиксированно: ' + s.flat_price.toLocaleString('ru-RU') + ' ₽' : ''} — ${s.description || ''}</div>
+        </div>
+        <div class="service-actions">
+          <button class="btn btn-ghost btn-sm" onclick='openServiceModal(${JSON.stringify(s)})'>Изм.</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteService(${s.id})">Удал.</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function openServiceModal(service = null) {
+    currentServiceId = service?.id || null;
+    document.getElementById('service-modal-title').textContent = service ? 'Редактировать услугу' : 'Новая услуга';
+    document.getElementById('s-name').value    = service?.name || '';
+    document.getElementById('s-icon').value    = service?.icon || '🔨';
+    document.getElementById('s-price').value   = service?.price_per_sqm || '';
+    document.getElementById('s-flat').value    = service?.flat_price || '';
+    document.getElementById('s-desc').value    = service?.description || '';
+    document.getElementById('s-popular').checked = service?.is_popular || false;
+    openModal('service-modal');
+  }
+
+  async function saveService() {
+    const body = {
+      name:         document.getElementById('s-name').value,
+      icon:         document.getElementById('s-icon').value,
+      price_per_sqm: parseInt(document.getElementById('s-price').value) || null,
+      flat_price:   parseInt(document.getElementById('s-flat').value) || null,
+      description:  document.getElementById('s-desc').value,
+      is_popular:   document.getElementById('s-popular').checked,
+      is_active:    true
+    };
+    try {
+      if (currentServiceId) {
+        await api(`/services/${currentServiceId}`, { method: 'PUT', body: JSON.stringify(body) });
+      } else {
+        await api('/services', { method: 'POST', body: JSON.stringify(body) });
+      }
+      closeModal('service-modal');
+      loadServices();
+    } catch(e) {
+      alert(e.message);
+    }
+  }
+
+  async function deleteService(id) {
+    if (!confirm('Удалить услугу?')) return;
+    await api(`/services/${id}`, { method: 'DELETE' });
+    loadServices();
+  }
+
+  // ─── PROFILE ─────────────────────────────────────────────
+  async function loadProfile() {
+    const p = await api('/profile');
+    document.getElementById('p-brand').value  = p.brand_name || '';
+    document.getElementById('p-tagline').value = p.tagline || '';
+    document.getElementById('p-color').value  = p.accent_color || '#2AABEE';
+    document.getElementById('p-phone').value  = p.owner_phone || '';
+    document.getElementById('p-bot').value    = p.bot_username ? '@' + p.bot_username : '';
+    updateColorPreview();
+  }
+
+  function updateColorPreview() {
+    const color = document.getElementById('p-color').value;
+    document.getElementById('color-preview').style.background = color;
+  }
+
+  async function saveProfile() {
+    const alertEl = document.getElementById('profile-alert');
+    try {
+      await api('/profile', {
+        method: 'PUT',
+        body: JSON.stringify({
+          brand_name:   document.getElementById('p-brand').value,
+          tagline:      document.getElementById('p-tagline').value,
+          accent_color: document.getElementById('p-color').value,
+          owner_phone:  document.getElementById('p-phone').value
+        })
+      });
+      alertEl.textContent = 'Сохранено!';
+      alertEl.className = 'alert alert-success show';
+      setTimeout(() => alertEl.classList.remove('show'), 3000);
+    } catch(e) {
+      alertEl.textContent = e.message;
+      alertEl.className = 'alert alert-error show';
+    }
+  }
+
+  // ─── MODALS ──────────────────────────────────────────────
+  function openModal(id)  { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+  });
+</script>
+</body>
+</html>

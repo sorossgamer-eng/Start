@@ -12,7 +12,8 @@ app.use(express.json());
 app.use(cors());
 
 // Подключаем маршруты
-app.use('/api/app', require('./routes/app'));
+app.use('/api/app',        require('./routes/app'));
+app.use('/api/contractor', require('./routes/contractor'));
 
 // Проверочный маршрут — открой в браузере http://localhost:3000/
 app.get('/', (req, res) => {
