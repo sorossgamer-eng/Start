@@ -4,6 +4,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { notifyContractor } = require('../services/telegram');
 
 // GET /api/app/:slug/config
 // Возвращает настройки подрядчика: бренд, услуги, портфолио
@@ -77,9 +78,9 @@ router.post('/:slug/lead', async (req, res) => {
       return res.status(400).json({ error: 'Имя и телефон обязательны' });
     }
 
-    // Находим подрядчика
+    // Находим подрядчика (берём все поля для уведомления)
     const contractorResult = await db.query(
-      'SELECT id FROM contractors WHERE slug = $1 AND is_active = TRUE',
+      'SELECT id, brand_name, bot_token, bot_chat_id FROM contractors WHERE slug = $1 AND is_active = TRUE',
       [slug]
     );
 
@@ -87,7 +88,7 @@ router.post('/:slug/lead', async (req, res) => {
       return res.status(404).json({ error: 'Подрядчик не найден' });
     }
 
-    const contractor_id = contractorResult.rows[0].id;
+    const contractor = contractorResult.rows[0];
 
     // Сохраняем заявку в БД
     const leadResult = await db.query(
@@ -97,13 +98,24 @@ router.post('/:slug/lead', async (req, res) => {
           tg_user_id, tg_username, tg_first_name)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
        RETURNING id`,
-      [contractor_id, client_name, client_phone, call_time,
+      [contractor.id, client_name, client_phone, call_time,
        repair_type, area_sqm, city, city_coeff, estimated_cost,
        tg_user_id, tg_username, tg_first_name]
     );
 
     const lead_id = leadResult.rows[0].id;
     console.log(`✅ Новая заявка #${lead_id} для подрядчика slug=${slug}`);
+
+    // Отправляем уведомление в Telegram (не блокирует ответ клиенту)
+    const lead = {
+      client_name, client_phone, call_time,
+      repair_type, area_sqm, city, estimated_cost
+    };
+    notifyContractor(contractor, lead).then(sent => {
+      if (sent) {
+        db.query('UPDATE leads SET notified_tg = TRUE WHERE id = $1', [lead_id]);
+      }
+    });
 
     res.json({ ok: true, lead_id });
 
