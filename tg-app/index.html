@@ -755,6 +755,11 @@ html, body {
   transition: transform 0.15s;
 }
 .portfolio-card:active { transform: scale(0.96); }
+.portfolio-thumb-img {
+  width: 100%;
+  height: 96px;
+  object-fit: cover;
+}
 .portfolio-thumb {
   height: 96px;
   display: flex;
@@ -1428,15 +1433,19 @@ const REPAIR_TYPES = [
 /* Портфолио выполненных проектов */
 const PORTFOLIO = [
   { id:1, name:'Гостиная, Москва',       icon:'🛋️', bg:'#E3F2FD',
+    img:'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800',
     type:'Капитальный', area:'68 м²', days:'52 дня', cost:'2 400 000 ₽',
     desc:'Полный капитальный ремонт с заменой коммуникаций. Натяжной потолок, ламинат 33 класса, дизайнерские обои.' },
   { id:2, name:'Кухня-гостиная, СПб',   icon:'🍳', bg:'#FFF3E0',
+    img:'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800',
     type:'Под ключ', area:'45 м²', days:'38 дней', cost:'1 800 000 ₽',
     desc:'Объединение кухни и гостиной. Кухонный гарнитур на заказ, встроенная техника, скрытая подсветка.' },
   { id:3, name:'Студия, Москва',         icon:'🏠', bg:'#E8F5E9',
+    img:'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800',
     type:'Новостройка', area:'32 м²', days:'28 дней', cost:'890 000 ₽',
     desc:'Ремонт в новостройке под ключ. Умная планировка хранения, современный минимализм.' },
   { id:4, name:'Санузел × 2, Москва',   icon:'🚿', bg:'#F3E5F5',
+    img:'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=800',
     type:'Капитальный', area:'18 м²', days:'21 день', cost:'380 000 ₽',
     desc:'Полная реконструкция двух санузлов. Итальянская плитка, скрытые коммуникации.' }
 ];
@@ -1825,7 +1834,10 @@ function renderPortfolio() {
   document.getElementById('portfolio-grid').innerHTML =
     PORTFOLIO.map(p => `
       <div class="portfolio-card" onclick="openProject(${p.id})">
-        <div class="portfolio-thumb" style="background:${p.bg}">${p.icon}</div>
+        ${p.img
+          ? `<img class="portfolio-thumb-img" src="${p.img}" alt="${p.name}" loading="lazy">`
+          : `<div class="portfolio-thumb" style="background:${p.bg}">${p.icon}</div>`
+        }
         <div class="portfolio-body">
           <div class="portfolio-name">${p.name}</div>
           <div class="portfolio-meta">${p.type} · ${p.area}</div>
