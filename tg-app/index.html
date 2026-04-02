@@ -1738,14 +1738,23 @@ document.getElementById('btn-submit').addEventListener('click', () => {
   state.name  = name;
   state.phone = phone;
 
-  /* === ИНТЕГРАЦИЯ С TELEGRAM БОТОМ ===
-     В продакшене здесь отправляем данные на сервер:
-     fetch('https://ваш-сервер.ru/api/lead', {
-       method: 'POST',
-       body: JSON.stringify({ ...state }),
-       headers: { 'Content-Type': 'application/json' }
-     });
-     Или используем tg.sendData() для inline-режима бота. */
+  fetch('http://155.212.208.8/api/app/remontpro-demo/lead', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      client_name:    state.name,
+      client_phone:   state.phone,
+      call_time:      state.callTime,
+      repair_type:    state.type?.name,
+      area_sqm:       state.area,
+      city:           state.cityName,
+      city_coeff:     state.cityCoeff,
+      estimated_cost: Math.round(state.total),
+      tg_user_id:     window.Telegram?.WebApp?.initDataUnsafe?.user?.id,
+      tg_username:    window.Telegram?.WebApp?.initDataUnsafe?.user?.username,
+      tg_first_name:  window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name
+    })
+  }).catch(() => {});
 
   TG.notify('success');
   goTo('screen-success');
