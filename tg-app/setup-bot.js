@@ -43,7 +43,7 @@ async function api(method, body) {
     menu_button: {
       type: 'web_app',
       text: '🏠 Открыть приложение',
-      web_app: { url: 'https://sorossgamer-eng.github.io/Start/tg-app/index.html' }
+      web_app: { url: 'https://xn--e1aoddbfcfq.su/app' }
     }
   });
 
