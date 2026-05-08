@@ -786,6 +786,7 @@ a { text-decoration: none; color: inherit; }
 .portfolio__bg--3 { background: linear-gradient(135deg, #134e5e, #2d3436); }
 .portfolio__bg--4 { background: linear-gradient(135deg, #4a1942, #1a1a2e); }
 .portfolio__bg--5 { background: linear-gradient(135deg, #005c97, #134e5e); }
+img.portfolio__bg { object-fit: cover; width: 100%; height: 100%; }
 
 .portfolio__label {
   position: absolute;
@@ -1439,8 +1440,8 @@ a { text-decoration: none; color: inherit; }
       <!-- Before/After slider -->
       <div class="portfolio__item portfolio__item--ba anim">
         <div class="ba-wrap" id="baWrap">
-          <div class="ba-after"><span class="portfolio__bg portfolio__bg--1" style="font-size:70px">🛋️</span></div>
-          <div class="ba-before" id="baBefore"><span class="portfolio__bg portfolio__bg--3" style="font-size:70px;filter:grayscale(1)">🏚️</span></div>
+          <div class="ba-after"><img class="portfolio__bg" src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=900&h=600&fit=crop&q=80" alt="После ремонта"></div>
+          <div class="ba-before" id="baBefore"><img class="portfolio__bg" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&h=600&fit=crop&q=80" alt="До ремонта" style="filter:grayscale(0.4)"></div>
           <div class="ba-label ba-label--before">До</div>
           <div class="ba-label ba-label--after">После</div>
           <div class="ba-line" id="baLine">
@@ -1455,7 +1456,7 @@ a { text-decoration: none; color: inherit; }
 
       <div class="portfolio__item anim anim--delay1">
         <div class="portfolio__img">
-          <div class="portfolio__bg portfolio__bg--2">🛏️</div>
+          <img class="portfolio__bg" src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=500&fit=crop&q=80" alt="Студия после ремонта">
         </div>
         <div class="portfolio__label">Новостройка</div>
         <div class="portfolio__overlay"><h4>Студия — 38 м²</h4><p>Под ключ · 34 дня · 980 000 ₽</p></div>
@@ -1463,7 +1464,7 @@ a { text-decoration: none; color: inherit; }
 
       <div class="portfolio__item anim anim--delay2">
         <div class="portfolio__img">
-          <div class="portfolio__bg portfolio__bg--3">🍳</div>
+          <img class="portfolio__bg" src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=500&fit=crop&q=80" alt="Кухня после ремонта">
         </div>
         <div class="portfolio__label">Дизайнерский</div>
         <div class="portfolio__overlay"><h4>Кухня-гостиная — 44 м²</h4><p>Дизайнерский · 41 день · 1 850 000 ₽</p></div>
@@ -1471,7 +1472,7 @@ a { text-decoration: none; color: inherit; }
 
       <div class="portfolio__item anim anim--delay3">
         <div class="portfolio__img">
-          <div class="portfolio__bg portfolio__bg--4">🛁</div>
+          <img class="portfolio__bg" src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=600&h=500&fit=crop&q=80" alt="Ванная после ремонта">
         </div>
         <div class="portfolio__label">Санузел</div>
         <div class="portfolio__overlay"><h4>Ванная — совмещённая</h4><p>Полная реконструкция · 14 дней · 195 000 ₽</p></div>
@@ -1479,7 +1480,7 @@ a { text-decoration: none; color: inherit; }
 
       <div class="portfolio__item anim anim--delay4">
         <div class="portfolio__img">
-          <div class="portfolio__bg portfolio__bg--5">🏠</div>
+          <img class="portfolio__bg" src="https://images.unsplash.com/photo-1560185007-5f0bb1866cab?w=600&h=500&fit=crop&q=80" alt="3-комнатная квартира после ремонта">
         </div>
         <div class="portfolio__label">Капитальный</div>
         <div class="portfolio__overlay"><h4>3-комнатная квартира — 92 м²</h4><p>Капитальный · 67 дней · 3 200 000 ₽</p></div>
